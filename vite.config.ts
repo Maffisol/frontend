@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
 export default defineConfig({
   plugins: [react()],
@@ -9,45 +10,55 @@ export default defineConfig({
     esbuildOptions: {
       target: 'esnext',
       define: {
-        global: 'globalThis', // Ensure global references are replaced
+        global: 'globalThis',
       },
       plugins: [
         NodeGlobalsPolyfillPlugin({
           buffer: true,
           process: true,
         }),
+        NodeModulesPolyfillPlugin(),
       ],
     },
   },
   resolve: {
     alias: {
-      process: path.resolve(__dirname, 'node_modules/process/browser.js'), // Polyfill for process
-      buffer: path.resolve(__dirname, 'node_modules/buffer/'), // Polyfill for buffer
-      '@': path.resolve(__dirname, 'src'), // Alias for src
+      process: path.resolve(__dirname, 'node_modules/process/browser.js'),
+      // Remove buffer alias
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   build: {
-    minify: process.env.NODE_ENV === 'production' ? 'esbuild' : false, // Minify in production only
+    minify: process.env.NODE_ENV === 'production' ? 'esbuild' : false,
     terserOptions: {
       compress: {
-        drop_console: true, // Remove console logs in production
+        drop_console: true,
       },
     },
-    sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline', // Enable sourcemaps in development
+    sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline',
+    rollupOptions: {
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          buffer: true,
+          process: true,
+        }),
+        NodeModulesPolyfillPlugin(),
+      ],
+    },
   },
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000/', // Proxy API to backend
+        target: 'http://localhost:5000/',
         changeOrigin: true,
       },
       '/socket.io': {
-        target: 'http://localhost:5000/', // Proxy WebSocket to backend
-        ws: true, // Enable WebSocket proxying
+        target: 'http://localhost:5000/',
+        ws: true,
         changeOrigin: true,
       },
     },
-    host: '0.0.0.0', // Allow access from any IP
-    port: 3000, // Vite dev server port
+    host: '0.0.0.0',
+    port: 3000,
   },
 });
