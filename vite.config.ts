@@ -9,13 +9,13 @@ export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
       define: {
-        global: 'globalThis',
+        global: 'globalThis', // Global object for browser environment
       },
       plugins: [
         NodeGlobalsPolyfillPlugin({
-          process: true,
+          process: true, // Enable process polyfill
         }),
-        NodeModulesPolyfillPlugin(),
+        NodeModulesPolyfillPlugin(), // Enable other necessary node module polyfills
       ],
       loader: {
         '.ts': 'tsx',
@@ -25,33 +25,33 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      process: path.resolve('./node_modules/process/browser.js'),
-      buffer: path.resolve('./node_modules/buffer/'),
-      '@': path.resolve(__dirname, 'src'),
+      process: path.resolve('./node_modules/process/browser.js'), // Alias for process
+      buffer: path.resolve('./node_modules/buffer/'), // Alias for buffer
+      '@': path.resolve(__dirname, 'src'), // Alias for src
     },
   },
   build: {
-    minify: process.env.NODE_ENV === 'production' ? 'esbuild' : false,
+    minify: process.env.NODE_ENV === 'production' ? 'esbuild' : false, // Minify only in production
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: true, // Remove console logs in production
       },
     },
-    sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline',
+    sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline', // Enable sourcemaps only in non-production
   },
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000/',
+        target: 'http://localhost:5000/', // Proxy API requests to your backend
         changeOrigin: true,
       },
       '/socket.io': {
         target: 'http://localhost:5000/',
-        ws: true,
+        ws: true, // Enable WebSocket proxying
         changeOrigin: true,
       },
     },
-    host: '0.0.0.0',
-    port: 3000,
+    host: '0.0.0.0', // Allow access from any IP address
+    port: 3000, // Vite server port
   },
 });
