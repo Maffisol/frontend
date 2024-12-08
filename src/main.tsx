@@ -7,7 +7,7 @@ import { clusterApiUrl } from '@solana/web3.js';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 // Setting up the Solana wallet connection
-const network = 'devnet'; // Change to 'mainnet-beta' for production
+const network = 'mainnet-beta'; // Change to 'mainnet-beta' for production
 const endpoint = clusterApiUrl(network);
 
 // Wallets to be used
