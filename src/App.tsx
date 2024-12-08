@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { useWallet } from '@solana/wallet-adapter-react';
-import './utils//polyfills'; // Import the polyfills before any other logic
+import './utils/polyfills'; // Import the polyfills before any other logic
 import axios from 'axios'; // Import axios voor API-verzoeken
 import WalletConnect from './components/WalletConnect';
 import Clicker from './components/Clicker';
