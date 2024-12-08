@@ -1,11 +1,6 @@
-// src/types/buffer.d.ts
+// src/globals.d.ts
+import { Buffer as NodeBuffer } from 'buffer';
 
-declare module 'buffer' {
-    export class Buffer {
-      static alloc(size: number): Buffer;
-      static from(data: string | Uint8Array | ArrayBuffer | number[]): Buffer;
-      copyBytesFrom(target: Buffer, targetStart: number, sourceStart: number, sourceEnd: number): number;
-      poolSize: number;
-    }
-  }
-  
+declare global {
+  const Buffer: typeof NodeBuffer;
+}
