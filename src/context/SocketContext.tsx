@@ -26,7 +26,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [messages, setMessages] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState<boolean>(false); // Track connection status
 
-  // Get the socket server URL from the environment variable, with fallback for localhost
+  // Get the socket server URL from the environment variable,
   const socketURL= import.meta.env.VITE_SOCKET_URL;
 
   // Connect the socket on mount
