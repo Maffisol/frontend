@@ -49,11 +49,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000/',
+        target: 'https://backend-blush-six.vercel.app/',
         changeOrigin: true,
       },
       '/socket.io': {
-        target: 'http://localhost:5000/',
+        target: 'https://backend-blush-six.vercel.app/',
         ws: true,
         changeOrigin: true,
       },
