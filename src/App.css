@@ -1,0 +1,40 @@
+/* styles.css */
+
+body {
+    background-color: #1A1A1A; /* Dark background */
+    color: #FFFFFF; /* Light text */
+    font-family: 'Arial', sans-serif; /* Choose a modern font */
+}
+
+h1, h2, h3 {
+    color: #FFD700; /* Gold for headers */
+}
+
+/* Custom button styles */
+button {
+    background-color: #FFD700; /* Gold button */
+    color: #111111; /* Dark text on button */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #FFC107; /* Slightly darker gold on hover */
+}
+
+/* Card styles */
+.card {
+    background-color: #222222; /* Dark card background */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Dark shadows */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 24px; /* Adjust font size for mobile */
+    }
+}
