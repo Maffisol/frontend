@@ -59,7 +59,7 @@ const DiceGame = ({ walletAddress }) => {
     };
     const logScoreToBackend = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/player/minigame/log', {
+            const response = await fetch(`${PLAYER_API_URL}/player/minigame/log`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

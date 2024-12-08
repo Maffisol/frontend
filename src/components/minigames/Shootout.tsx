@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
+
+
 interface ShootoutProps {
     walletAddress: string;
 }
@@ -71,7 +74,7 @@ const Shootout: React.FC<ShootoutProps> = ({ walletAddress }) => {
 
     const logScoreToBackend = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/player/minigame/log', {
+            const response = await fetch(`${PLAYER_API_URL}/player/minigame/log`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
