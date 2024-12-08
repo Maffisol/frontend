@@ -13,18 +13,20 @@ export default defineConfig({
         global: 'globalThis',
       },
       plugins: [
-        NodeGlobalsPolyfillPlugin({
-          buffer: true,
-          process: true,
-        }),
-        NodeModulesPolyfillPlugin(),
+        // Polyfills alleen inschakelen in productie
+        ...(process.env.NODE_ENV === 'production' ? [
+          NodeGlobalsPolyfillPlugin({
+            buffer: true,
+            process: true,
+          }),
+          NodeModulesPolyfillPlugin(),
+        ] : []),
       ],
     },
   },
   resolve: {
     alias: {
       process: path.resolve(__dirname, 'node_modules/process/browser.js'),
-      // Remove buffer alias
       '@': path.resolve(__dirname, 'src'),
     },
   },
