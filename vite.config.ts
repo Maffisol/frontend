@@ -37,7 +37,7 @@ export default defineConfig({
     },
     sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline',
     rollupOptions: {
-      plugins: [
+      plugins: process.env.NODE_ENV === 'production' ? [] : [
         NodeGlobalsPolyfillPlugin({
           buffer: true,
           process: true,
@@ -46,6 +46,7 @@ export default defineConfig({
       ],
     },
   },
+  
   server: {
     proxy: {
       '/api': {
