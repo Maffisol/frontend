@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MaffiaSol Clicker Game</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- Polyfill for Buffer and process -->
-    <script type="module">
-      import { Buffer } from "buffer";
+  <head>
+		<script type="module">
+			import { Buffer } from "buffer";
       import process from "process";
       window.Buffer = Buffer;
       window.process = process;
-    </script>
-</head>
+		</script>
+
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/logo.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	
+	</head>
 <body class="bg-gray-100 font-roboto">
     <div id="root"></div>
     <!-- Vite will inject the script for your app here -->

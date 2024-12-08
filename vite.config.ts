@@ -8,20 +8,18 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     esbuildOptions: {
+      target: 'esnext',
+      // Node.js global to browser globalThis
       define: {
-        global: 'globalThis', // Global object for browser environment
+        global: 'globalThis'
       },
       plugins: [
         NodeGlobalsPolyfillPlugin({
-          process: true, // Enable process polyfill
-        }),
-        NodeModulesPolyfillPlugin(), // Enable other necessary node module polyfills
-      ],
-      loader: {
-        '.ts': 'tsx',
-        '.tsx': 'tsx',
-      },
-    },
+          buffer: true,
+          process: true
+        })
+      ]
+    }
   },
   resolve: {
     alias: {
