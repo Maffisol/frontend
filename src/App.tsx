@@ -30,6 +30,8 @@ import FamilyDashboard from './components/FamilyDashboard'; // Family Dashboard 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faEnvelopeOpen, faUser } from '@fortawesome/free-regular-svg-icons'; 
 import { SocketProvider } from './context/SocketContext'; // Pad naar je contextbestand
+import { Buffer } from 'buffer';
+window.Buffer = Buffer;
 
 const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
 
