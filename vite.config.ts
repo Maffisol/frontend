@@ -13,14 +13,15 @@ export default defineConfig({
         global: 'globalThis',
       },
       plugins: [
-        // Polyfills alleen inschakelen in productie
-        ...(process.env.NODE_ENV === 'production' ? [
-          NodeGlobalsPolyfillPlugin({
-            buffer: true,
-            process: true,
-          }),
-          NodeModulesPolyfillPlugin(),
-        ] : []),
+        ...(process.env.NODE_ENV === 'production'
+          ? [
+              NodeGlobalsPolyfillPlugin({
+                buffer: true,
+                process: true,
+              }),
+              NodeModulesPolyfillPlugin(),
+            ]
+          : []),
       ],
     },
   },
@@ -39,23 +40,26 @@ export default defineConfig({
     },
     sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline',
     rollupOptions: {
-      plugins: process.env.NODE_ENV === 'production' ? [] : [
-        NodeGlobalsPolyfillPlugin({
-          buffer: true,
-          process: true,
-        }),
-        NodeModulesPolyfillPlugin(),
-      ],
+      plugins: process.env.NODE_ENV === 'production'
+        ? []
+        : [
+            NodeGlobalsPolyfillPlugin({
+              buffer: true,
+              process: true,
+            }),
+            NodeModulesPolyfillPlugin(),
+          ],
     },
   },
-  
   server: {
     proxy: {
       '/api': {
         target: process.env.VITE_BACKEND_URL,
+        changeOrigin: true,
+        secure: true, // Force HTTPS for proxy
       },
       '/socket.io': {
-        target: process.env.VITE_BACKEND_URL,
+        target: process.env.VITE_SOCKET_URL,
         ws: true,
         changeOrigin: true,
       },
