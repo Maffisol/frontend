@@ -26,12 +26,14 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [messages, setMessages] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState<boolean>(false); // Track connection status
 
-  // Get the socket server URL from the environment variable,
-  const socketURL= import.meta.env.VITE_SOCKET_URL;
+  // Get the socket server URL from the environment variable
+  const socketURL = import.meta.env.VITE_SOCKET_URL;
 
   // Connect the socket on mount
   useEffect(() => {
     socket.current = io(socketURL, {
+      transports: ['polling', 'websocket'], // Specify transport methods
+      withCredentials: true,  // Allow sending cookies if needed
       reconnectionAttempts: 5, // Reconnection attempts before failing
       reconnectionDelay: 1000, // Delay between reconnection attempts
     });
