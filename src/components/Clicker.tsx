@@ -17,7 +17,7 @@ const Clicker: React.FC = () => {
             if (publicKey) { // Check if the user is logged in
                 setLoading(true); // Set loading to true while fetching
                 try {
-                    const response = await fetch(`/api/player/profile/${publicKey.toString()}`); // Fetch player data
+                    const response = await fetch(`${import.meta.env.VITE_PLAYER_API_URL}/profile/${publicKey.toString()}`); // Fetch player data
                     if (!response.ok) throw new Error('Failed to fetch player data');
                     
                     const data: PlayerData = await response.json();
