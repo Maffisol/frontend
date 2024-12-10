@@ -302,7 +302,7 @@ useEffect(() => {
         const costs = await Promise.all(
           types.map(async (type) => {
             const response = await axios.get(
-              `$${import.meta.env.VITE_FAMILY_DASHBOARD_API_URL}/upgrade-cost?familyId=${familyId}&upgradeType=${type}`
+              `${import.meta.env.VITE_FAMILY_DASHBOARD_API_URL}/upgrade-cost?familyId=${familyId}&upgradeType=${type}`
             );
             return { type, cost: response.data.cost };
           })
