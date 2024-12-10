@@ -201,7 +201,7 @@ const FamilyDashboard: React.FC<FamilyDashboardProps> = ({ walletAddress }) => {
     setLoadingMore(true);
     try {
       const offset = messages.length;
-      const response = await axios.get(`/${FAMILY_DASHBOARD_API_URL}/${familyId}/chat`, {
+      const response = await axios.get(`${FAMILY_DASHBOARD_API_URL}/${familyId}/chat`, {
         params: { limit: 100, offset },
       });
   
