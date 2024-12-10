@@ -13,7 +13,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showUsernameForm, setShowUsernameForm] = useState<boolean>(false);
-    const navigate = useNavigate(); // Hook for navigation
+    const navigate = useNavigate();
 
     useEffect(() => {
         const checkWallet = async () => {
@@ -25,36 +25,35 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
                 });
 
                 if (!response.ok) {
-                    setShowUsernameForm(true); // If user is not found, show the form
-                    setLoading(false);
+                    setShowUsernameForm(true);
                     return;
                 }
 
                 const data = await response.json();
 
                 if (data.username) {
-                    onRegister(data.username); // If username exists, proceed to dashboard
-                    navigate('/'); // Redirect to home page (root route)
-                    setShowUsernameForm(false); // Hide username form after successful login
-                } else {
-                    setShowUsernameForm(true); // Show username form if username not set
+                    onRegister(data.username);
+                    navigate('/'); // Redirect to home
+                    return;
                 }
+
+                setShowUsernameForm(true); // Show form if username not set
             } catch (error) {
-                setErrorMessage('Unable to verify wallet address. Please try again later.');
+                setErrorMessage('Unable to verify wallet address. Please try again.');
             } finally {
                 setLoading(false);
             }
         };
 
         checkWallet();
-    }, [publicKey, onRegister, navigate]); // Adding navigate to dependencies
+    }, [publicKey, onRegister, navigate]);
 
     const handleUsernameSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
 
-        if (!username) {
-            setErrorMessage('Please enter a username.');
+        if (!username.trim()) {
+            setErrorMessage('Please enter a valid username.');
             return;
         }
 
@@ -64,18 +63,17 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
             const response = await fetch(`${PLAYER_API_URL}/createPlayer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, walletAddress: publicKey }),
+                body: JSON.stringify({ username: username.trim(), walletAddress: publicKey }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to register username');
+                throw new Error(errorData.message || 'Failed to register username.');
             }
 
             const newPlayer = await response.json();
-            onRegister(newPlayer.username); // Proceed in the app after successful registration
-            navigate('/'); // Redirect to home page after successful registration
-            setShowUsernameForm(false); // Hide username form after successful registration
+            onRegister(newPlayer.username);
+            navigate('/'); // Redirect to home
         } catch (error: any) {
             setErrorMessage(error.message || 'Unable to register username. Please try again.');
         } finally {
@@ -87,7 +85,6 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
         return <p className="text-yellow-300 text-center">Loading...</p>;
     }
 
-    // Return a blank screen or redirect once the form is no longer needed
     if (!showUsernameForm) {
         return null; // No UI to render once the user is registered or logged in
     }
@@ -95,27 +92,25 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
     return (
         <div className="mt-6 bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
             <h2 className="text-2xl text-yellow-400 font-bold text-center mb-4">Register Your Username</h2>
-            {showUsernameForm ? (
-                <form onSubmit={handleUsernameSubmit} className="flex flex-col space-y-4">
-                    <input
-                        type="text"
-                        placeholder="Enter your username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="p-3 rounded-md border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                        required
-                    />
-                    <button
-                        type="submit"
-                        className={`bg-yellow-400 text-gray-900 p-3 rounded-md hover:bg-yellow-500 transition duration-300 shadow-md ${loading ? 'opacity-50' : ''}`}
-                        disabled={loading}
-                    >
-                        Submit
-                    </button>
-                </form>
-            ) : (
-                <p className="text-yellow-300 text-center">Redirecting to home...</p>
-            )}
+            <form onSubmit={handleUsernameSubmit} className="flex flex-col space-y-4">
+                <input
+                    type="text"
+                    placeholder="Enter your username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="p-3 rounded-md border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    required
+                />
+                <button
+                    type="submit"
+                    className={`bg-yellow-400 text-gray-900 p-3 rounded-md hover:bg-yellow-500 transition duration-300 shadow-md ${
+                        loading ? 'opacity-50' : ''
+                    }`}
+                    disabled={loading}
+                >
+                    {loading ? 'Submitting...' : 'Submit'}
+                </button>
+            </form>
             {errorMessage && <div className="text-red-500 mt-2 text-center">{errorMessage}</div>}
         </div>
     );
