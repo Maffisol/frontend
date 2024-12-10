@@ -34,7 +34,6 @@ import { SocketProvider } from './context/SocketContext'; // Pad naar je context
 
 
 const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
-const MESSAGES_API_URL = import.meta.env.VITE_MESSAGES_API_URL
 
     const App: React.FC = () => {
     const { publicKey } = useWallet();
@@ -120,20 +119,23 @@ const MESSAGES_API_URL = import.meta.env.VITE_MESSAGES_API_URL
     }, [walletAddress]);
 
 
-     // Ophalen van ongelezen berichten en berichten markeren als gelezen
-     useEffect(() => {
+    // Ophalen van ongelezen berichten en berichten markeren als gelezen
+    useEffect(() => {
         const fetchUnreadMessages = async () => {
-            if (!currentUser?._id) return;  // Als de userId niet beschikbaar is, doe niets
+            if (!currentUser?._id) {
+                console.log('currentUser._id is niet beschikbaar');
+                return;  // Als de userId niet beschikbaar is, doe niets
+            }
 
             try {
                 // Ophalen van ongelezen berichten
-                const response = await api.get(`${MESSAGES_API_URL}/unread/${currentUser._id}`);
+                const response = await api.get(`${import.meta.env.VITE_MESSAGES_API_URL}/unread/${currentUser._id}`);
                 console.log('API response unreadCount:', response.data.unreadCount);
                 setUnreadCount(response.data.unreadCount || 0);
 
                 // Markeer berichten als gelezen zodra de inbox wordt geopend
                 if (showInbox) {
-                    const markResponse = await api.post(`${MESSAGES_API_URL}/mark-read`, {
+                    const markResponse = await api.post(`${import.meta.env.VITE_MESSAGES_API_URL}/mark-read`, {
                         userId: currentUser._id,
                         chatId: currentChatId,
                     });
