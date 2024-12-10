@@ -7,7 +7,7 @@ import Picker from '@emoji-mart/react';
 
 const FAMILY_DASHBOARD_API_URL = import.meta.env.VITE_FAMILY_DASHBOARD_API_URL;
 const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
-
+const FAMILY_API_URL = import.meta.env.VITE_FAMILY_API_URL;
 
 
 interface Cooldown {
@@ -337,7 +337,7 @@ const fetchFamilyDetails = async (username: string) => {
   console.log('Fetching family details for username:', username); // Debugging
 
   try {
-    const response = await axios.get('/api/family');
+    const response = await axios.get(`${FAMILY_API_URL}`);
     const families: Family[] = response.data;
 
     console.log('Fetched families:', families); // Controleer de opgehaalde families
