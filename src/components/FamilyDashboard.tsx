@@ -178,7 +178,7 @@ const FamilyDashboard: React.FC<FamilyDashboardProps> = ({ walletAddress }) => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await axios.get(`/${FAMILY_DASHBOARD_API_URL}/${familyId}/chat`, {
+        const response = await axios.get(`${FAMILY_DASHBOARD_API_URL}/${familyId}/chat`, {
           params: { limit: 100, offset: 0 },
         });
         const history = response.data.chatHistory || [];
