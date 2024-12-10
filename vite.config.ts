@@ -62,6 +62,11 @@ export default defineConfig({
         target: process.env.VITE_SOCKET_URL,
         ws: true,
         changeOrigin: true,
+        secure: true,
+        headers: {
+          'Access-Control-Allow-Origin': 'https://it-memo.nl', // Voeg de juiste frontend URL toe
+          'Access-Control-Allow-Credentials': 'true',
+        },
       },
     },
     host: '0.0.0.0',
