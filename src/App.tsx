@@ -48,7 +48,10 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
     const [unreadCount, setUnreadCount] = useState<number>(0);
     const [currentChatId, ] = useState<string | null>(null);
     const [currentUser, setCurrentUser] = useState<any>(null);
-    
+    const api = axios.create({
+        baseURL: import.meta.env.VITE_MESSAGES_API_URL, // Dit haalt de base URL uit je .env bestand
+        timeout: 10000, // Time-out ingesteld op 10 seconden
+    });
 
     const handleRegister = async (username: string) => {
         if (!walletAddress) {
@@ -121,7 +124,7 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
     useEffect(() => {
         const fetchUnreadMessages = async () => {
             try {
-                const response = await axios.get(`/api/messages/unread/${currentUser._id}`);
+                const response = await api.get(`/unread/${currentUser._id}`); // Haal de berichten op zonder /api omdat die al in de base URL zit
                 console.log('API response unreadCount:', response.data.unreadCount); // Debug log
                 setUnreadCount(response.data.unreadCount || 0);
                 console.log('Updated unreadCount state:', response.data.unreadCount || 0); // Debug log
@@ -129,11 +132,11 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
                 console.error('Error fetching unread messages:', error);
             }
         };
-    
+
         if (currentUser?._id) {
             fetchUnreadMessages();
         }
-    }, [currentUser?._id]);
+    }, [currentUser?._id]); 
 
     // Berichten markeren als gelezen
     const markMessagesAsRead = async () => {
