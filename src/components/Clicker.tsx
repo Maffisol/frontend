@@ -46,7 +46,7 @@ const Clicker: React.FC = () => {
       
         try {
           const response = await axios.post(
-            `${import.meta.env.VITE_HITTER_API_URL}/hitter`, 
+            `${import.meta.env.VITE_HITTER_API_URL}`, 
             { 
               walletAddress: publicKey?.toString(), // Use wallet address
               clickCount: newCount, // Send updated click count
