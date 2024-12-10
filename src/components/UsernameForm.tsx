@@ -34,12 +34,12 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
 
                 if (data.username) {
                     onRegister(data.username); // If username exists, proceed to dashboard
-                    navigate('/'); // Redirect to dashboard
+                    navigate('/'); // Redirect to home page (root route)
                 } else {
                     setShowUsernameForm(true); // Show username form if username not set
                 }
             } catch (error) {
-                setErrorMessage('Unable to verify wallet address.');
+                setErrorMessage('Unable to verify wallet address. Please try again later.');
             } finally {
                 setLoading(false);
             }
@@ -73,9 +73,9 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
 
             const newPlayer = await response.json();
             onRegister(newPlayer.username); // Proceed in the app after successful registration
-            navigate('/dashboard'); // Redirect to dashboard after successful registration
+            navigate('/'); // Redirect to home page after successful registration
         } catch (error: any) {
-            setErrorMessage(error.message || 'Unable to register username');
+            setErrorMessage(error.message || 'Unable to register username. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -107,7 +107,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
                     </button>
                 </form>
             ) : (
-                <p className="text-yellow-300 text-center">Redirecting to the dashboard...</p>
+                <p className="text-yellow-300 text-center">Redirecting to home...</p>
             )}
             {errorMessage && <div className="text-red-500 mt-2 text-center">{errorMessage}</div>}
         </div>
