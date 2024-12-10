@@ -57,7 +57,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
         setLoading(true);
 
         try {
-            const response = await fetch(`${PLAYER_API_URL}/player/createPlayer`, {
+            const response = await fetch(`${PLAYER_API_URL}/createPlayer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, walletAddress: publicKey }),
