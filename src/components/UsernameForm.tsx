@@ -87,6 +87,11 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
         return <p className="text-yellow-300 text-center">Loading...</p>;
     }
 
+    // Return a blank screen or redirect once the form is no longer needed
+    if (!showUsernameForm) {
+        return null; // No UI to render once the user is registered or logged in
+    }
+
     return (
         <div className="mt-6 bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
             <h2 className="text-2xl text-yellow-400 font-bold text-center mb-4">Register Your Username</h2>
