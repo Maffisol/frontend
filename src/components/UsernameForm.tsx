@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
 
@@ -12,6 +13,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
     const [loading, setLoading] = useState<boolean>(true); 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showUsernameForm, setShowUsernameForm] = useState<boolean>(false);
+    const navigate = useNavigate(); // Hook for navigation
 
     useEffect(() => {
         const checkWallet = async () => {
@@ -32,6 +34,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
 
                 if (data.username) {
                     onRegister(data.username); // If username exists, proceed to dashboard
+                    navigate('/dashboard'); // Redirect to dashboard
                 } else {
                     setShowUsernameForm(true); // Show username form if username not set
                 }
@@ -43,7 +46,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
         };
 
         checkWallet();
-    }, [publicKey, onRegister]);
+    }, [publicKey, onRegister, navigate]); // Adding navigate to dependencies
 
     const handleUsernameSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -70,6 +73,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
 
             const newPlayer = await response.json();
             onRegister(newPlayer.username); // Proceed in the app after successful registration
+            navigate('/dashboard'); // Redirect to dashboard after successful registration
         } catch (error: any) {
             setErrorMessage(error.message || 'Unable to register username');
         } finally {
