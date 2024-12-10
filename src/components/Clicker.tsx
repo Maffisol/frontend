@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import axios from 'axios';
 
 interface PlayerData {
     clickCount: string; // Ensuring the click count is a string from the database
@@ -42,29 +43,32 @@ const Clicker: React.FC = () => {
     const handleClick = async () => {
         const newCount = (parseInt(clickCount) + 1).toString(); // Increment and convert to string
         setClickCount(newCount); // Update local state
-
+      
         try {
-            const response = await fetch('/api/hitter', { // Send updated click count to the backend
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    walletAddress: publicKey?.toString(), // Use wallet address
-                    clickCount: newCount, // Send updated click count
-                }),
-            });
-
-            if (!response.ok) {
-                const data = await response.json(); // Attempt to read error response
-                throw new Error(`Failed to save click: ${data.message || 'Unknown error'}`);
+          const response = await axios.post(
+            `${import.meta.env.VITE_HITTER_API_URL}/hitter`, 
+            { 
+              walletAddress: publicKey?.toString(), // Use wallet address
+              clickCount: newCount, // Send updated click count
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json', // Ensure proper content type
+              },
             }
-
-            console.log('Click data saved'); // Log saved click data
+          );
+      
+          // Check if the request was successful
+          if (response.status !== 200) {
+            throw new Error(`Failed to save click: ${response.data.message || 'Unknown error'}`);
+          }
+      
+          console.log('Click data saved'); // Log saved click data
         } catch (error) {
-            console.error('Error saving click count:', error); // Log error if saving fails
+          console.error('Error saving click count:', error); // Log error if saving fails
         }
-    };
+      };
+      
 
     return (
         <div className="bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
