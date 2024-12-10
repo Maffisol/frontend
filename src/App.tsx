@@ -124,7 +124,7 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
     useEffect(() => {
         const fetchUnreadMessages = async () => {
             try {
-                const response = await api.get(`/unread/${currentUser._id}`); // Haal de berichten op zonder /api omdat die al in de base URL zit
+                const response = await api.post(`/unread/${currentUser._id}`); // Haal de berichten op zonder /api omdat die al in de base URL zit
                 console.log('API response unreadCount:', response.data.unreadCount); // Debug log
                 setUnreadCount(response.data.unreadCount || 0);
                 console.log('Updated unreadCount state:', response.data.unreadCount || 0); // Debug log
