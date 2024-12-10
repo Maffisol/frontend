@@ -271,7 +271,7 @@ useEffect(() => {
     try {
       console.log('Fetching player data for walletAddress:', walletAddress);
   
-      const { data: player }: { data: Player } = await axios.get(`/${PLAYER_API_URL}/profile/${walletAddress}`);
+      const { data: player }: { data: Player } = await axios.get(`${PLAYER_API_URL}/profile/${walletAddress}`);
       console.log('Player data fetched:', player);
   
       if (player?.username) {
