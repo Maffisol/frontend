@@ -34,7 +34,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
 
                 if (data.username) {
                     onRegister(data.username); // If username exists, proceed to dashboard
-                    navigate('/dashboard'); // Redirect to dashboard
+                    navigate('/'); // Redirect to dashboard
                 } else {
                     setShowUsernameForm(true); // Show username form if username not set
                 }
