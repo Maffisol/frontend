@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSocket } from '../context/SocketContext';  // Zorg ervoor dat je het pad naar je SocketContext correct instelt
+import axios from 'axios';  // Importeer axios
+
+// Gebruik de VITE_LEADERBOARD_API_URL uit je .env bestand
+const api = axios.create({
+    baseURL: import.meta.env.VITE_LEADERBOARD_API_URL,  // Haal de baseURL uit de .env
+    timeout: 10000,  // Stel een time-out in van 10 seconden
+});
+
 
 interface LeaderboardEntry {
     walletAddress: string;
@@ -31,9 +39,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
     const fetchLeaderboard = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/leaderboard/${type}`);
-            if (!response.ok) throw new Error('Failed to fetch leaderboard data');
-            const data = await response.json();
+            // Axios haalt de data direct uit response.data
+            const response = await api.get(`/leaderboard/${type}`);
+            if (response.status !== 200) {
+                throw new Error('Failed to fetch leaderboard data');
+            }
+            const data = response.data; // Gebruik direct de data van de response
             console.log("Fetched leaderboard data:", data); // Log de ontvangen data
             type === 'players' ? setLeaderboard(data) : setFamilies(data);
             setError(null);
