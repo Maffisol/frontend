@@ -34,6 +34,7 @@ import { SocketProvider } from './context/SocketContext'; // Pad naar je context
 
 
 const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
+const MESSAGES_API_URL = import.meta.env.VITE_MESSAGES_API_URL
 
     const App: React.FC = () => {
     const { publicKey } = useWallet();
@@ -46,11 +47,10 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
     const [unreadCount, setUnreadCount] = useState<number>(0);
     const [currentChatId, ] = useState<string | null>(null);
     const [currentUser, setCurrentUser] = useState<any>(null);
-// Maak een axios instantie met de basis-URL uit de .env
-const api = axios.create({
-    baseURL: import.meta.env.VITE_MESSAGES_API_URL, // Vult automatisch de basis-URL in uit .env bestand
-    timeout: 10000, // Time-out van 10 seconden
-});
+    const api = axios.create({
+        baseURL: process.env.REACT_APP_API_URL, // Zet de basis URL voor de API
+        timeout: 10000, // Timeout indien de server niet snel antwoordt
+    });
 
     const handleRegister = async (username: string) => {
         if (!walletAddress) {
@@ -124,7 +124,7 @@ const api = axios.create({
     useEffect(() => {
         const fetchUnreadMessages = async () => {
             try {
-                const response = await api.get(`/unread/${currentUser._id}`); // Gebruik de juiste API endpoint
+                const response = await api.get(`${MESSAGES_API_URL}/unread/${currentUser._id}`); // Gebruik de juiste API endpoint
                 console.log('API response unreadCount:', response.data.unreadCount); // Debug log
                 setUnreadCount(response.data.unreadCount || 0);
             } catch (error) {
@@ -137,20 +137,20 @@ const api = axios.create({
         }
     }, [currentUser?._id]);
 
-    // Berichten markeren als gelezen
-    const markMessagesAsRead = async () => {
-        try {
-            console.log('Marking messages as read for user:', currentUser._id, 'chatId:', currentChatId); // Debug log
-            const response = await api.post('/mark-read', { // Correcte endpoint voor markeren
-                userId: currentUser._id,
-                chatId: currentChatId, // Voeg chatId toe als je dit wilt gebruiken
-            });
-            console.log('Mark read response:', response.data); // Debug log
-            setUnreadCount(0); // Reset de badge naar 0 na het markeren
-        } catch (error) {
-            console.error('Error marking messages as read:', error);
-        }
-    };
+// Berichten markeren als gelezen
+const markMessagesAsRead = async () => {
+    try {
+        console.log('Marking messages as read for user:', currentUser._id, 'chatId:', currentChatId); // Debug log
+        const response = await api.post(`${MESSAGES_API_URL}/mark-read`, {  // Correcte endpoint voor markeren
+            userId: currentUser._id,
+            chatId: currentChatId, // Voeg chatId toe als je dit wilt gebruiken
+        });
+        console.log('Mark read response:', response.data); // Debug log
+        setUnreadCount(0); // Reset de badge naar 0 na het markeren
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
+    }
+};
 
     // Markeer berichten als gelezen bij openen van inbox
     useEffect(() => {
