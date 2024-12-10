@@ -5,6 +5,7 @@ import Picker from '@emoji-mart/react';
 
 // Socket.io client
 const BASE_API_URL = '/api/familyDashboard';
+const PLAYER_API_URL = '/api/player';
 
 interface Cooldown {
   active: boolean;
@@ -174,7 +175,7 @@ const FamilyDashboard: React.FC<FamilyDashboardProps> = ({ walletAddress }) => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await axios.get(`/api/familyDashboard/${familyId}/chat`, {
+        const response = await axios.get(`/${BASE_API_URL}/${familyId}/chat`, {
           params: { limit: 100, offset: 0 },
         });
         const history = response.data.chatHistory || [];
@@ -197,7 +198,7 @@ const FamilyDashboard: React.FC<FamilyDashboardProps> = ({ walletAddress }) => {
     setLoadingMore(true);
     try {
       const offset = messages.length;
-      const response = await axios.get(`/api/familyDashboard/${familyId}/chat`, {
+      const response = await axios.get(`/${BASE_API_URL}/${familyId}/chat`, {
         params: { limit: 100, offset },
       });
   
@@ -270,7 +271,7 @@ useEffect(() => {
     try {
       console.log('Fetching player data for walletAddress:', walletAddress);
   
-      const { data: player }: { data: Player } = await axios.get(`/api/player/profile/${walletAddress}`);
+      const { data: player }: { data: Player } = await axios.get(`/${PLAYER_API_URL}/profile/${walletAddress}`);
       console.log('Player data fetched:', player);
   
       if (player?.username) {

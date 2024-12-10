@@ -16,7 +16,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
     useEffect(() => {
         const checkWallet = async () => {
             try {
-                const response = await fetch(`${PLAYER_API_URL}/player/login`, {
+                const response = await fetch(`${PLAYER_API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ walletAddress: publicKey }),
