@@ -35,8 +35,6 @@ import { SocketProvider } from './context/SocketContext'; // Pad naar je context
 
 const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
 
-
-
     const App: React.FC = () => {
     const { publicKey } = useWallet();
     const walletAddress = publicKey ? publicKey.toString() : null;
@@ -48,10 +46,11 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
     const [unreadCount, setUnreadCount] = useState<number>(0);
     const [currentChatId, ] = useState<string | null>(null);
     const [currentUser, setCurrentUser] = useState<any>(null);
-    const api = axios.create({
-        baseURL: import.meta.env.VITE_MESSAGES_API_URL, // Dit haalt de base URL uit je .env bestand
-        timeout: 10000, // Time-out ingesteld op 10 seconden
-    });
+// Maak een axios instantie met de basis-URL uit de .env
+const api = axios.create({
+    baseURL: import.meta.env.VITE_MESSAGES_API_URL, // Vult automatisch de basis-URL in uit .env bestand
+    timeout: 10000, // Time-out van 10 seconden
+});
 
     const handleRegister = async (username: string) => {
         if (!walletAddress) {
@@ -121,13 +120,13 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
     }, [walletAddress]);
 
 
+    // Ophalen van ongelezen berichten
     useEffect(() => {
         const fetchUnreadMessages = async () => {
             try {
-                const response = await api.post(`/unread/${currentUser._id}`); // Haal de berichten op zonder /api omdat die al in de base URL zit
+                const response = await api.get(`/unread/${currentUser._id}`); // Gebruik de juiste API endpoint
                 console.log('API response unreadCount:', response.data.unreadCount); // Debug log
                 setUnreadCount(response.data.unreadCount || 0);
-                console.log('Updated unreadCount state:', response.data.unreadCount || 0); // Debug log
             } catch (error) {
                 console.error('Error fetching unread messages:', error);
             }
@@ -136,17 +135,18 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
         if (currentUser?._id) {
             fetchUnreadMessages();
         }
-    }, [currentUser?._id]); 
+    }, [currentUser?._id]);
 
     // Berichten markeren als gelezen
     const markMessagesAsRead = async () => {
         try {
             console.log('Marking messages as read for user:', currentUser._id, 'chatId:', currentChatId); // Debug log
-            await axios.post('/api/messages/mark-read', {
+            const response = await api.post('/mark-read', { // Correcte endpoint voor markeren
                 userId: currentUser._id,
-                /*chatId: currentChatId, // Of laat dit weg als je alle berichten wilt markeren*/
+                chatId: currentChatId, // Voeg chatId toe als je dit wilt gebruiken
             });
-            setUnreadCount(0); // Reset de badge
+            console.log('Mark read response:', response.data); // Debug log
+            setUnreadCount(0); // Reset de badge naar 0 na het markeren
         } catch (error) {
             console.error('Error marking messages as read:', error);
         }
