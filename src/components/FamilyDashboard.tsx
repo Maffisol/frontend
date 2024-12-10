@@ -4,8 +4,11 @@ import { useSocket } from '../context/SocketContext';  // Zorg ervoor dat je het
 import Picker from '@emoji-mart/react';
 
 // Socket.io client
-const BASE_API_URL = '/api/familyDashboard';
-const PLAYER_API_URL = '/api/player';
+
+const FAMILY_DASHBOARD_API_URL = import.meta.env.VITE_FAMILY_DASHBOARD_API_URL;
+const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
+
+
 
 interface Cooldown {
   active: boolean;
@@ -175,7 +178,7 @@ const FamilyDashboard: React.FC<FamilyDashboardProps> = ({ walletAddress }) => {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await axios.get(`/${BASE_API_URL}/${familyId}/chat`, {
+        const response = await axios.get(`/${FAMILY_DASHBOARD_API_URL}/${familyId}/chat`, {
           params: { limit: 100, offset: 0 },
         });
         const history = response.data.chatHistory || [];
@@ -198,7 +201,7 @@ const FamilyDashboard: React.FC<FamilyDashboardProps> = ({ walletAddress }) => {
     setLoadingMore(true);
     try {
       const offset = messages.length;
-      const response = await axios.get(`/${BASE_API_URL}/${familyId}/chat`, {
+      const response = await axios.get(`/${FAMILY_DASHBOARD_API_URL}/${familyId}/chat`, {
         params: { limit: 100, offset },
       });
   
@@ -253,7 +256,7 @@ useEffect(() => {
   const fetchFamilyData = async () => {
     try {
       console.log("Fetching family-specific data for familyId:", familyId);
-      const { data } = await axios.get(`${BASE_API_URL}/request-cooldown/${familyId}`);
+      const { data } = await axios.get(`${FAMILY_DASHBOARD_API_URL}/request-cooldown/${familyId}`);
       console.log("Fetched cooldown data:", data.cooldowns);
       setCooldowns(data.cooldowns);
     } catch (error) {
@@ -305,7 +308,7 @@ useEffect(() => {
         const costs = await Promise.all(
           types.map(async (type) => {
             const response = await axios.get(
-              `${BASE_API_URL}/upgrade-cost?familyId=${familyId}&upgradeType=${type}`
+              `${FAMILY_DASHBOARD_API_URL}/upgrade-cost?familyId=${familyId}&upgradeType=${type}`
             );
             return { type, cost: response.data.cost };
           })
@@ -532,7 +535,7 @@ const sendMessage = async () => {
   // ** Fetch territories **
   const fetchTerritories = async () => {
     try {
-      const response = await axios.get(`${BASE_API_URL}/territories`);
+      const response = await axios.get(`${FAMILY_DASHBOARD_API_URL}/territories`);
       setRealTimeTerritories(response.data || []);
     } catch (error) {
       console.error('Error fetching territories:', error);
@@ -544,7 +547,7 @@ const sendMessage = async () => {
     if (!familyId) return;
 
     try {
-        const response = await axios.get(`${BASE_API_URL}/request-cooldown/${familyId}`);
+        const response = await axios.get(`${FAMILY_DASHBOARD_API_URL}/request-cooldown/${familyId}`);
         console.log("Cooldowns from server:", response.data.cooldowns); // Voeg logging toe
         setCooldowns(response.data.cooldowns || {}); // Fallback naar een leeg object
     } catch (error) {
@@ -563,7 +566,7 @@ const sendMessage = async () => {
     try {
       console.log(`Attempting to claim territory: territoryId=${territoryId}, familyId=${familyId}`);
   
-      const response = await axios.post(`${BASE_API_URL}/territory/claim`, {
+      const response = await axios.post(`${FAMILY_DASHBOARD_API_URL}/territory/claim`, {
         familyId,
         territoryId,
       });
@@ -593,7 +596,7 @@ const sendMessage = async () => {
         `Attempting sabotage: attackerId=${familyId}, targetFamilyId=${targetFamilyId}, territoryId=${territoryId}`
       );
   
-      const response = await axios.post(`${BASE_API_URL}/territory/sabotage`, {
+      const response = await axios.post(`${FAMILY_DASHBOARD_API_URL}/territory/sabotage`, {
         attackerId: familyId,
         targetFamilyId,
         territoryId,
@@ -620,7 +623,7 @@ const sendMessage = async () => {
     try {
       console.log(`Attempting upgrade: type=${type}, familyId=${familyId}`);
   
-      const response = await axios.post(`${BASE_API_URL}/upgrade`, {
+      const response = await axios.post(`${FAMILY_DASHBOARD_API_URL}/upgrade`, {
         familyId,
         upgradeType: type,
       });
@@ -648,7 +651,7 @@ const sendMessage = async () => {
     try {
       console.log(`Attempting to collect resources: familyId=${familyId}`);
   
-      const { data } = await axios.post(`${BASE_API_URL}/collect-resources/${familyId}`);
+      const { data } = await axios.post(`${FAMILY_DASHBOARD_API_URL}/collect-resources/${familyId}`);
       console.log("Collected resources data:", data);
   
       // Update cooldowns and family data
@@ -681,7 +684,7 @@ const handleDonation = async () => {
   }
 
   try {
-    const response = await axios.post(`${BASE_API_URL}/family/donate`, {
+    const response = await axios.post(`${FAMILY_DASHBOARD_API_URL}/family/donate`, {
       familyId,
       playerId: userId, // Use userId, which is now the username
       amount: donationAmount,
