@@ -120,44 +120,33 @@ const MESSAGES_API_URL = import.meta.env.VITE_MESSAGES_API_URL
     }, [walletAddress]);
 
 
-    // Ophalen van ongelezen berichten
-    useEffect(() => {
+     // Ophalen van ongelezen berichten en berichten markeren als gelezen
+     useEffect(() => {
         const fetchUnreadMessages = async () => {
+            if (!currentUser?._id) return;  // Als de userId niet beschikbaar is, doe niets
+
             try {
-                const response = await api.get(`${MESSAGES_API_URL}/unread/${currentUser._id}`); // Gebruik de juiste API endpoint
-                console.log('API response unreadCount:', response.data.unreadCount); // Debug log
+                // Ophalen van ongelezen berichten
+                const response = await api.get(`${MESSAGES_API_URL}/unread/${currentUser._id}`);
+                console.log('API response unreadCount:', response.data.unreadCount);
                 setUnreadCount(response.data.unreadCount || 0);
+
+                // Markeer berichten als gelezen zodra de inbox wordt geopend
+                if (showInbox) {
+                    const markResponse = await api.post(`${MESSAGES_API_URL}/mark-read`, {
+                        userId: currentUser._id,
+                        chatId: currentChatId,
+                    });
+                    console.log('Mark read response:', markResponse.data);
+                    setUnreadCount(0);  // Reset de badge naar 0 na het markeren
+                }
             } catch (error) {
-                console.error('Error fetching unread messages:', error);
+                console.error('Error fetching or marking messages as read:', error);
             }
         };
 
-        if (currentUser?._id) {
-            fetchUnreadMessages();
-        }
-    }, [currentUser?._id]);
-
-// Berichten markeren als gelezen
-const markMessagesAsRead = async () => {
-    try {
-        console.log('Marking messages as read for user:', currentUser._id, 'chatId:', currentChatId); // Debug log
-        const response = await api.post(`${MESSAGES_API_URL}/mark-read`, {  // Correcte endpoint voor markeren
-            userId: currentUser._id,
-            chatId: currentChatId, // Voeg chatId toe als je dit wilt gebruiken
-        });
-        console.log('Mark read response:', response.data); // Debug log
-        setUnreadCount(0); // Reset de badge naar 0 na het markeren
-    } catch (error) {
-        console.error('Error marking messages as read:', error);
-    }
-};
-
-    // Markeer berichten als gelezen bij openen van inbox
-    useEffect(() => {
-        if (showInbox && currentUser?._id) {
-            markMessagesAsRead();
-        }
-    }, [showInbox, currentUser?._id]);
+        fetchUnreadMessages();
+    }, [currentUser?._id, showInbox, currentChatId]);
 
 return (
     <SocketProvider>
