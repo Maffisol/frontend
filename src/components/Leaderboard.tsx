@@ -40,7 +40,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
         setLoading(true);
         try {
             // Axios haalt de data direct uit response.data
-            const response = await api.get(`/leaderboard/${type}`);
+            const response = await api.get(`/${type}`);
             if (response.status !== 200) {
                 throw new Error('Failed to fetch leaderboard data');
             }
