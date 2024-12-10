@@ -10,7 +10,7 @@ interface UsernameFormProps {
 
 const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
     const [username, setUsername] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(true); 
+    const [loading, setLoading] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showUsernameForm, setShowUsernameForm] = useState<boolean>(false);
     const navigate = useNavigate(); // Hook for navigation
@@ -23,18 +23,19 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ walletAddress: publicKey }),
                 });
-                
+
                 if (!response.ok) {
                     setShowUsernameForm(true); // If user is not found, show the form
                     setLoading(false);
                     return;
                 }
-                
+
                 const data = await response.json();
 
                 if (data.username) {
                     onRegister(data.username); // If username exists, proceed to dashboard
                     navigate('/'); // Redirect to home page (root route)
+                    setShowUsernameForm(false); // Hide username form after successful login
                 } else {
                     setShowUsernameForm(true); // Show username form if username not set
                 }
@@ -74,6 +75,7 @@ const UsernameForm: FC<UsernameFormProps> = ({ publicKey, onRegister }) => {
             const newPlayer = await response.json();
             onRegister(newPlayer.username); // Proceed in the app after successful registration
             navigate('/'); // Redirect to home page after successful registration
+            setShowUsernameForm(false); // Hide username form after successful registration
         } catch (error: any) {
             setErrorMessage(error.message || 'Unable to register username. Please try again.');
         } finally {
