@@ -34,12 +34,11 @@ const Missions: React.FC = () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_MISSIONS_API_URL}`);
             if (!response.ok) throw new Error('Failed to fetch missions');
-            const data: Mission[] = await response.json();
-            console.log('Missions data:', data); // Log the fetched missions
+            const data = await response.json();
+            console.log('Missions data:', data);
             setMissions(data);
-            setError(null);
         } catch (err) {
-            console.error(err); // Log the error
+            console.error('Fetch error:', err);
             setError('Failed to load missions. Please try again later.');
         } finally {
             setLoading(false);
