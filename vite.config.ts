@@ -3,9 +3,13 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
+import VitePluginHistory from 'vite-plugin-history';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePluginHistory(),  // Voeg de history plugin toe
+  ],
   optimizeDeps: {
     esbuildOptions: {
       target: 'esnext',
