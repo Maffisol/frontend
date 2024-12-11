@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Define the structure for a mission
 interface Mission {
@@ -32,7 +32,7 @@ const Missions: React.FC = () => {
     const fetchMissions = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/missions');
+            const response = await fetch(`${import.meta.env.VITE_MISSIONS_API_URL}`);
             if (!response.ok) throw new Error('Failed to fetch missions');
             const data: Mission[] = await response.json();
             console.log('Missions data:', data); // Log the fetched missions
