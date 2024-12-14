@@ -6,36 +6,50 @@ import ImageSlider from './ImageSlider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTh, faArrowsAltH } from '@fortawesome/free-solid-svg-icons'; // Raster- en scroll-iconen
 
-
-
 const Home: React.FC<{ walletAddress: string }> = ({ walletAddress }) => {
     const [activeLeaderboard, setActiveLeaderboard] = useState<'players' | 'families'>('players');
     const [showProfileCard, setShowProfileCard] = useState(false);
-    const [isGridView, setIsGridView] = useState(false); // Toggle state for view
+    const [isGridView, setIsGridView] = useState(false);
 
-    // Ref en state voor horizontaal slepen
+    // Refs & States voor slepen en swipen
     const sliderRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
+    const touchStartX = useRef<number>(0);
 
+    // Muis Events
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (sliderRef.current && !isGridView) {
-            setIsDragging(true);
-            setStartX(e.pageX - sliderRef.current.offsetLeft);
-            setScrollLeft(sliderRef.current.scrollLeft);
-        }
+        if (!sliderRef.current || isGridView) return;
+        setIsDragging(true);
+        setStartX(e.pageX - sliderRef.current.offsetLeft);
+        setScrollLeft(sliderRef.current.scrollLeft);
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging || !sliderRef.current || isGridView) return;
+        e.preventDefault();
+        const x = e.pageX - sliderRef.current.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll snelheid
+        sliderRef.current.scrollLeft = scrollLeft - walk;
     };
 
     const handleMouseLeave = () => setIsDragging(false);
     const handleMouseUp = () => setIsDragging(false);
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging || isGridView) return;
-        e.preventDefault();
-        if (sliderRef.current) {
-            const x = e.pageX - sliderRef.current.offsetLeft;
-            const walk = (x - startX) * 2;
-            sliderRef.current.scrollLeft = scrollLeft - walk;
+
+    // Touch Events
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (sliderRef.current && !isGridView) {
+            touchStartX.current = e.touches[0].clientX;
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (sliderRef.current && !isGridView) {
+            const touchCurrentX = e.touches[0].clientX;
+            const walk = (touchStartX.current - touchCurrentX) * 2; // Scroll snelheid
+            sliderRef.current.scrollLeft += walk;
+            touchStartX.current = touchCurrentX;
         }
     };
 
@@ -65,25 +79,22 @@ const Home: React.FC<{ walletAddress: string }> = ({ walletAddress }) => {
             </div>
 
             {/* Tiles Section with Grid or Scrollable View */}
-            <section 
+            <section
                 ref={sliderRef}
-                className={`w-full ${isGridView ? 'grid grid-cols-5 gap-4 px-4' : 'flex overflow-hidden space-x-4 px-4 pb-2'}`}
+                className={`w-full px-4 pb-2 ${isGridView ? 'grid grid-cols-3 sm:grid-cols-5 gap-4' : 'flex overflow-hidden space-x-4'}`}
                 onMouseDown={handleMouseDown}
                 onMouseLeave={handleMouseLeave}
                 onMouseUp={handleMouseUp}
                 onMouseMove={handleMouseMove}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
             >
                 {[
                     { path: '/business', label: 'Business', iconPath: '/assets/business-icon.png' },
-                    { path: '/clicker', label: 'Clicker', iconPath: '/assets/clicker-icon.png' },
                     { path: '/minigame', label: 'Mini Game', iconPath: '/assets/minigame-icon.png' },
                     { path: '/shop', label: 'Shop', iconPath: '/assets/shop-icon.png' },
-                    { path: '/missions', label: 'Missions', iconPath: '/assets/missions-icon.png' },
-                    { path: '/baseupgrades', label: 'Base Upgrades', iconPath: '/assets/baseupgrades-icon.png' },
                     { path: '/families', label: 'Families', iconPath: '/assets/families-icon.png' },
-                    { path: '/FamilyDashboard', label: 'Family Dashboard', iconPath: '/assets/dashboard-icon.png' }, // Navigate to Family Dashboard
-
-
+                    { path: '/FamilyDashboard', label: 'Family Dashboard', iconPath: '/assets/dashboard-icon.png' },
                     { path: '/smuggling', label: 'Smuggling', iconPath: '/assets/smuggling-icon.png' },
                     { path: '/steal-car', label: 'Steal a Car', iconPath: '/assets/steal-car-icon.png' },
                     { path: '/crimes', label: 'Crimes', iconPath: '/assets/crimes-icon.png' },
@@ -101,7 +112,7 @@ const Home: React.FC<{ walletAddress: string }> = ({ walletAddress }) => {
                 ))}
             </section>
 
-            {/* Full-Width Leaderboard Section */}
+            {/* Leaderboard Section */}
             <div className="flex justify-center w-full px-4">
                 <div className="bg-gray-800 rounded-lg shadow-lg p-4 w-full max-w-3xl">
                     <div className="flex justify-between items-center mb-4">
@@ -126,7 +137,7 @@ const Home: React.FC<{ walletAddress: string }> = ({ walletAddress }) => {
                     <Leaderboard type={activeLeaderboard} />
                 </div>
             </div>
-
+            
             {/* Profile Card Modal */}
             {showProfileCard && (
                 <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
