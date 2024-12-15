@@ -30,6 +30,7 @@ interface Notification {
   }
   
   
+  
   interface Chat {
     _id: string;
     inviterUsername: string;
@@ -39,6 +40,8 @@ interface Notification {
       senderId: string;
       content: string;
     } | null; // Kan null zijn als er nog geen berichten zijn
+    familyName?: string;  // Optional familyName property
+
   }
 
 const Inbox: React.FC<InboxProps> = ({ userId }) => {
@@ -74,7 +77,7 @@ const Inbox: React.FC<InboxProps> = ({ userId }) => {
     const fetchData = async () => {
         try {
             if (!userId) throw new Error('User ID is missing');
-
+    
             const [
                 chatInvitesResponse,
                 familyInvitesResponse,
@@ -88,7 +91,9 @@ const Inbox: React.FC<InboxProps> = ({ userId }) => {
                 axios.get(`${BASE_API_URL}/chats/${userId}`),
                 axios.get(`${BASE_API_URL}/messages/${userId}`),
             ]);
-
+    
+            console.log("Family invites response:", familyInvitesResponse.data); // Log de data van family invites
+    
             setInvites({
                 chat: chatInvitesResponse.data || [],
                 family: familyInvitesResponse.data || [],
@@ -101,6 +106,7 @@ const Inbox: React.FC<InboxProps> = ({ userId }) => {
             console.error('Error fetching data:', error);
         }
     };
+    
 
     useEffect(() => {
         // Check if socket and userId are available
@@ -120,11 +126,11 @@ const handleJailStatusUpdate = (data: { walletAddress: string; isInJail: boolean
         const newNotification = {
             _id: `jail-${Date.now()}`, // Unique ID for the notification
             message: data.isInJail
-                ? // Check if jailReleaseTime is not null before creating the Date object
-                  `You have been sent to jail. Release time: ${data.jailReleaseTime ? new Date(data.jailReleaseTime).toLocaleTimeString() : 'N/A'}`
+                ? `You have been sent to jail. Release time: ${data.jailReleaseTime ? new Date(data.jailReleaseTime).toLocaleTimeString() : 'N/A'}`
                 : 'You have been released from jail.',
         };
 
+        // Avoid duplicate notifications
         setNotifications((prevNotifications) => {
             const exists = prevNotifications.some((notification) => notification.message === newNotification.message);
             if (!exists) {
@@ -350,89 +356,81 @@ const acceptInvite = async (inviteId: string, type: 'chat' | 'family') => {
             )}
 
 {activeTab === 'invites' && (
+  <div>
+    <h2 className="text-2xl font-semibold text-white mb-4">Pending Invites</h2>
     <div>
-        <h2 className="text-2xl font-semibold text-white mb-4">Pending Invites</h2>
-        <div>
-            {/* Chat Invites */}
-<h3 className="text-xl font-semibold text-white mb-2">Chat Invites</h3>
-<ul className="space-y-4 mb-6">
-    {invites.chat && invites.chat.filter
-        ? (
-            invites.chat.filter((invite) => invite.status === 'pending').length > 0
-                ? invites.chat
-                    .filter((invite) => invite.status === 'pending')
-                    .map((invite) => (
-                        <li
-                            key={invite._id}
-                            className="bg-gray-700 p-4 rounded-lg shadow-md text-white flex justify-between items-center"
-                        >
-                            <span>{invite.inviterUsername} has invited you to chat.</span>
-                            <div>
-                                <button
-                                    onClick={() => acceptInvite(invite._id, 'chat')}
-                                    className="bg-green-600 text-white px-4 py-2 rounded-md mr-3"
-                                >
-                                    Accept
-                                </button>
-                                <button
-                                    onClick={() => declineInvite(invite._id, 'chat')}
-                                    className="bg-red-600 text-white px-4 py-2 rounded-md"
-                                >
-                                    Decline
-                                </button>
-                            </div>
-                        </li>
-                    ))
-                : (
-                    <li className="bg-gray-700 p-4 rounded-lg shadow-md text-center text-white">
-                        No pending chat invites
-                    </li>
-                )
-        )
-        : (
-            <li className="bg-gray-700 p-4 rounded-lg shadow-md text-center text-white">
-                No pending chat invites
-            </li>
-        )
-    }
-</ul>
+      {/* Chat Invites */}
+      <h3 className="text-xl font-semibold text-white mb-2 mt-6">Chat Invites</h3>
+      <ul className="space-y-4">
+        {invites.chat.length > 0 ? (
+          invites.chat
+            .filter((invite) => invite.status === 'pending') // Alleen de pending uitnodigingen
+            .map((invite) => (
+              <li
+                key={invite._id}
+                className="bg-gray-700 p-4 rounded-lg shadow-md text-white flex justify-between items-center"
+              >
+                <span>{invite.inviterUsername || 'Unknown User'} has invited you to a private chat.</span>  {/* Chat-specific message */}
+                <div>
+                  <button
+                    onClick={() => acceptInvite(invite._id, 'chat')}
+                    className="bg-green-600 text-white px-4 py-2 rounded-md mr-3"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => declineInvite(invite._id, 'chat')}
+                    className="bg-red-600 text-white px-4 py-2 rounded-md"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </li>
+            ))
+        ) : (
+          <li className="bg-gray-700 p-4 rounded-lg shadow-md text-center text-white">No pending chat invites</li>
+        )}
+      </ul>
 
-
-            {/* Family Invites */}
-            <h3 className="text-xl font-semibold text-white mb-2">Family Invites</h3>
-            <ul className="space-y-4">
-                {invites.family.length > 0 ? (
-                    invites.family
-                        .filter((invite) => invite.status === 'pending') // Ensure only pending invites are shown
-                        .map((invite) => (
-                            <li
-                                key={invite._id}
-                                className="bg-gray-700 p-4 rounded-lg shadow-md text-white flex justify-between items-center"
-                            >
-                                <span>{invite.inviterUsername} has invited you to join the family.</span>
-                                <div>
-                                    <button
-                                        onClick={() => acceptInvite(invite._id, 'family')}
-                                        className="bg-green-600 text-white px-4 py-2 rounded-md mr-3"
-                                    >
-                                        Accept
-                                    </button>
-                                    <button
-                                        onClick={() => declineInvite(invite._id, 'family')}
-                                        className="bg-red-600 text-white px-4 py-2 rounded-md"
-                                    >
-                                        Decline
-                                    </button>
-                                </div>
-                            </li>
-                        ))
-                ) : (
-                    <li className="bg-gray-700 p-4 rounded-lg shadow-md text-center text-white">No pending family invites</li>
-                )}
-            </ul>
-        </div>
+      {/* Family Invites */}
+      <h3 className="text-xl font-semibold text-white mb-2">Family Invites</h3>
+      <ul className="space-y-4">
+        {invites.family.length > 0 ? (
+          invites.family
+            .filter((invite) => invite.status === 'pending') // Alleen de pending uitnodigingen
+            .map((invite) => (
+              <li
+                key={invite._id}
+                className="bg-gray-700 p-4 rounded-lg shadow-md text-white flex justify-between items-center"
+              >
+                <span>
+                  {invite.inviterUsername || 'Unknown User'} has sent you an invitation to join {invite.familyName || 'a family'}
+                </span>  {/* Family-specific message */}
+                <div>
+                  <button
+                    onClick={() => acceptInvite(invite._id, 'family')}
+                    className="bg-green-600 text-white px-4 py-2 rounded-md mr-3"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => declineInvite(invite._id, 'family')}
+                    className="bg-red-600 text-white px-4 py-2 rounded-md"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </li>
+            ))
+        ) : (
+          <li className="bg-gray-700 p-4 rounded-lg shadow-md text-center text-white">No pending family invites</li>
+        )}
+      </ul>
     </div>
-            )}
+  </div>
+)}
+
+
 
 
 {activeTab === 'chats' && (

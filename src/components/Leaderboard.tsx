@@ -76,9 +76,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
             socket.off("leaderboardUpdate");
         };
     }, [socket, type]);
-
     return (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto sm:overflow-x-auto md:overflow-x-hidden">
             {loading ? (
                 <p className="text-yellow-300 text-center">Loading...</p>
             ) : error ? (
@@ -87,10 +86,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
                 <table className="min-w-full table-fixed text-gray-300">
                     <thead>
                         <tr className="bg-gray-700">
-                            <th className="py-3 px-2 text-left w-1/4">Username</th>
-                            <th className="py-3 px-2 text-left w-1/4">Family</th>
-                            <th className="py-3 px-2 text-left w-1/5">Rank</th>
-                            <th className="py-3 px-2 text-left w-1/5">Points</th>
+                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Username</th>
+                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Family</th>
+                            <th className="py-3 px-2 text-left w-1/5 sm:w-1/2 md:w-1/5">Rank</th>
+                            <th className="py-3 px-2 text-left w-1/5 sm:w-1/2 md:w-1/5">Points</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,10 +116,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
                 <table className="min-w-full table-fixed text-gray-300">
                     <thead>
                         <tr className="bg-gray-700">
-                            <th className="py-3 px-2 text-left w-1/4">Family</th>
-                            <th className="py-3 px-2 text-left w-1/4">Members</th>
-                            <th className="py-3 px-2 text-left w-1/4">Total Points</th>
-                            <th className="py-3 px-2 text-left w-1/4">Dominance Points</th>
+                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Family</th>
+                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Members</th>
+                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Total Points</th>
+                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Dominance Points</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -143,6 +142,5 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
             )}
         </div>
     );
-};
-
+};    
 export default Leaderboard;

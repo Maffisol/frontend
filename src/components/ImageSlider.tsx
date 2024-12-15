@@ -22,7 +22,7 @@ const ImageSlider: React.FC = () => {
     };
 
     return (
-        <div className="relative w-full max-w-2xl mx-auto mt-12 mb-12">
+        <div className="relative w-full max-w-3xl mx-auto mt-0 mb-4">
             {/* Slides */}
             <div className="relative overflow-hidden h-96"> {/* Increased height */}
                 {images.map((image, index) => (

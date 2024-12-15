@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSocket } from '../context/SocketContext';  // Zorg ervoor dat je het pad naar je SocketContext correct instelt
 
-
 const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
 const JAIL_API_URL = import.meta.env.VITE_JAIL_API_URL;
 
@@ -13,7 +12,7 @@ const StealCar: React.FC<StealCarProps> = ({ walletAddress }) => {
     const [result, setResult] = useState<string | null>(null);
     const [inJail, setInJail] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const socket = useSocket().socket;  // Haal de socket op uit de context
+    const socket = useSocket().socket;
 
     const carOptions = [
         { car: 'Luxury Sedan', successChance: 0.3, iconPath: '/assets/sedan-icon.png' },
@@ -48,9 +47,8 @@ const StealCar: React.FC<StealCarProps> = ({ walletAddress }) => {
     };
 
     useEffect(() => {
-        if (!socket || !walletAddress) return; // Ensure socket and walletAddress are available
+        if (!socket || !walletAddress) return;
     
-        // Register the walletAddress with the socket
         socket.emit('register', walletAddress);
     
         const handleJailStatusUpdate = (data: { walletAddress: string; isInJail: boolean; jailReleaseTime: string | null }) => {
@@ -58,28 +56,23 @@ const StealCar: React.FC<StealCarProps> = ({ walletAddress }) => {
             if (data.walletAddress === walletAddress) {
                 const jailReleaseTime = data.jailReleaseTime ? new Date(data.jailReleaseTime).getTime() : null;
                 const isCurrentlyInJail = data.isInJail && jailReleaseTime && jailReleaseTime > Date.now();
-                setInJail(!!isCurrentlyInJail); // Set the jail status
+                setInJail(!!isCurrentlyInJail);
             }
         };
     
         socket.on('jailStatusUpdated', handleJailStatusUpdate);
     
-        // Clean up the listener on unmount or when dependencies change
         return () => {
             socket.off('jailStatusUpdated', handleJailStatusUpdate);
         };
-    }, [socket, walletAddress]); // Ensure effect runs when socket or walletAddress changes
-    
-    
+    }, [socket, walletAddress]);
 
-    
     useEffect(() => {
         if (walletAddress) {
             fetchJailStatus();
         }
     }, [walletAddress]);
 
-    // Poging tot autodiefstal
     const attemptCarTheft = async (option: { car: string; successChance: number }) => {
         if (!walletAddress || inJail || loading) {
             setResult("You can't steal a car while in jail!");
@@ -98,6 +91,9 @@ const StealCar: React.FC<StealCarProps> = ({ walletAddress }) => {
                 setResult(`Failed to steal ${option.car}. You're going to jail!`);
                 await sendToJail();
             }
+
+            // Clear the result message after 2 seconds
+            setTimeout(() => setResult(null), 2000);  // Clear message after 2 seconds
         } catch (error) {
             console.error('Error attempting car theft:', error);
         } finally {
@@ -128,7 +124,7 @@ const StealCar: React.FC<StealCarProps> = ({ walletAddress }) => {
             const response = await fetch(`${JAIL_API_URL}/jail/${walletAddress}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ jailTime: 5 }), // Jail tijd in minuten
+                body: JSON.stringify({ jailTime: 5 }), // Jail time in minutes
             });
 
             if (response.ok) {

@@ -150,128 +150,128 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
         fetchUnreadMessages();
     }, [currentUser?._id, showInbox, currentChatId]);
 
-return (
-    <SocketProvider>
-    <WalletModalProvider>
-       <Router>
-            <div className="flex items-start justify-center min-h-screen bg-gray-900 text-white">
-                <div className="w-full max-w-3xl mx-auto p-4">
-                    <header>
-                        <div className="flex justify-between items-center">
-                            {/* Logo */}
-                            <Link to="/" className="flex-shrink-0">
-                                <img src={logo} alt="Maffisol Logo" style={{ height: '70px', width: '74px' }} />
-                            </Link>
+    return (
+        <SocketProvider>
+            <WalletModalProvider>
+                <Router>
+                <div className="flex items-start justify-center min-h-screen bg-gray-900 text-white w-full">
+                <div className="w-full sm:px-0 md:px-8 max-w-full sm:max-w-full md:max-w-3xl mx-auto">
+                <header className="w-full sm:px-0 md:px-8 px-0 mx-auto"> {/* Verwijder padding op mobiel */}
+                <div className="flex justify-between items-center w-full">
+        {/* Logo */}
+        <Link to="/" className="flex-shrink-0">
+          <img src={logo} alt="Maffisol Logo" style={{ height: '70px', width: '74px' }} />
+        </Link>
 
-                            {/* Buttons */}
-                            <div className="flex items-center space-x-4">
-    {walletAddress && currentUser && currentUser._id && (
-        <>
-<button
-    onClick={() => setShowInbox(!showInbox)}
-    className="bg-gray-700 p-2 rounded hover:bg-gray-600 transition relative"
->
-    <FontAwesomeIcon
-        icon={unreadCount > 0 ? faEnvelope : faEnvelopeOpen}
-        className="text-xl text-white"
-    />
-    {unreadCount > 0 && (
-        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-            {unreadCount}
-        </span>
-    )}
-</button>
+        {/* Buttons */}
+        <div className="flex items-center space-x-2 max-w-full">
+          {walletAddress && currentUser && currentUser._id && (
+            <>
+              <button
+                onClick={() => setShowInbox(!showInbox)}
+                className="bg-gray-700 p-2 rounded hover:bg-gray-600 transition relative flex items-center justify-center w-12 h-12"
+              >
+                <FontAwesomeIcon
+                  icon={unreadCount > 0 ? faEnvelope : faEnvelopeOpen}
+                  className="text-xl text-white"
+                />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
 
-
-            <button
+              <button
                 onClick={() => setShowProfileCard(!showProfileCard)}
-                className="bg-gray-700 p-2 rounded hover:bg-gray-600 transition flex items-center justify-center"
-            >
+                className="bg-gray-700 p-2 rounded hover:bg-gray-600 transition flex items-center justify-center w-12 h-12"
+              >
                 <FontAwesomeIcon icon={faUser} className="text-xl text-white" />
-            </button>
-        </>
-    )}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Jail Timer */}
+      {walletAddress && <JailTimer walletAddress={walletAddress} />}
+    </header>
+
+    <main className="w-full sm:px-0 md:px-8 px-0">
+      {!walletAddress ? (
+        <WalletConnect />
+      ) : loading ? (
+        <p className="text-yellow-300 text-center">Loading...</p>
+      ) : error ? (
+        <p className="text-red-500 text-center">{error}</p>
+      ) : !isRegistered ? (
+        <UsernameForm publicKey={walletAddress} onRegister={handleRegister} />
+      ) : (
+        <Routes>
+          <Route path="/" element={<Home walletAddress={walletAddress} />} />
+          <Route path="/business" element={<Business walletAddress={walletAddress} />} />
+          <Route path="/clicker" element={<Clicker />} />
+          <Route path="/minigame" element={<MiniGame />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/missions" element={<Missions />} />
+          <Route path="/baseupgrades" element={<BaseUpgrades walletAddress={walletAddress} />} />
+          <Route path="/families" element={<Families />} />
+          <Route path="/FamilyDashboard" element={<FamilyDashboard walletAddress={walletAddress} />} />
+          <Route path="/smuggling" element={<Smuggling walletAddress={walletAddress} />} />
+          <Route path="/steal-car" element={<StealCar walletAddress={walletAddress} />} />
+          <Route path="/crimes" element={<Crimes walletAddress={walletAddress} />} />
+          <Route path="/jail" element={<Jail walletAddress={walletAddress} />} />
+          <Route
+            path="/kill"
+            element={
+              currentUser && (
+                <Kill
+                  currentUserId={currentUser._id}
+                  currentUserRank={currentUser.rank}
+                  currentUserFamily={currentUser.family}
+                  walletAddress={currentUser.walletAddress}
+                />
+              )
+            }
+          />
+          <Route path="/minigame/lockpicking" element={<Lockpicking walletAddress={walletAddress} />} />
+          <Route path="/minigame/shootout" element={<Shootout walletAddress={walletAddress} />} />
+          <Route path="/minigame/car-chase" element={<CarChase walletAddress={walletAddress} />} />
+          <Route path="/minigame/dice-game" element={<DiceGame walletAddress={walletAddress} />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      )}
+    </main>
+  </div>
+
+  {/* Overlay modals */}
+  {showInbox && (
+    <div className="fixed inset-0 flex justify-center items-end bg-black bg-opacity-50">
+      <div className="bg-gray-800 p-4 rounded-t-lg shadow-lg w-full max-w-md">
+        <button onClick={() => setShowInbox(false)} className="text-white float-right mb-2">
+          ✖
+        </button>
+        <Inbox userId={currentUser._id} />
+      </div>
+    </div>
+  )}
+
+  {showProfileCard && walletAddress && (
+    <div className="fixed inset-0 flex justify-center items-end bg-black bg-opacity-50">
+      <div className="bg-gray-800 p-4 rounded-t-lg shadow-lg w-full max-w-md">
+        <button onClick={() => setShowProfileCard(false)} className="text-white float-right mb-2">
+          ✖
+        </button>
+        <ProfileCard walletAddress={walletAddress} />
+      </div>
+    </div>
+  )}
 </div>
-
-                        </div>
-
-                    {/* Jail Timer */}
-                    {walletAddress && <JailTimer walletAddress={walletAddress} />}</header>
-
-                    <main>
-                        {!walletAddress ? (
-                            <WalletConnect />
-                        ) : loading ? (
-                            <p className="text-yellow-300 text-center">Loading...</p>
-                        ) : error ? (
-                            <p className="text-red-500 text-center">{error}</p>
-                        ) : !isRegistered ? (
-                            <UsernameForm publicKey={walletAddress} onRegister={handleRegister} />
-                        ) : (
-                            <Routes>
-                                <Route path="/" element={<Home walletAddress={walletAddress} />} />
-                                <Route path="/business" element={<Business walletAddress={walletAddress} />} />
-                                <Route path="/clicker" element={<Clicker />} />
-                                <Route path="/minigame" element={<MiniGame />} />
-                                <Route path="/shop" element={<Shop />} />
-                                <Route path="/missions" element={<Missions />} />
-                                <Route path="/baseupgrades" element={<BaseUpgrades walletAddress={walletAddress} />} />
-                                <Route path="/families" element={<Families />} />
-                                <Route path="/FamilyDashboard" element={<FamilyDashboard walletAddress={walletAddress} />} />
-                                <Route path="/smuggling" element={<Smuggling walletAddress={walletAddress} />} />
-                                <Route path="/steal-car" element={<StealCar walletAddress={walletAddress} />} />
-                                <Route path="/crimes" element={<Crimes walletAddress={walletAddress} />} />
-                                <Route path="/jail" element={<Jail walletAddress={walletAddress} />} />
-                                <Route
-                                    path="/kill"
-                                    element={
-                                        currentUser && (
-                                            <Kill
-                                                currentUserId={currentUser._id}
-                                                currentUserRank={currentUser.rank}
-                                                currentUserFamily={currentUser.family}
-                                                walletAddress={currentUser.walletAddress}
-                                            />
-                                        )
-                                    }
-                                />
-                                <Route path="/minigame/lockpicking" element={<Lockpicking walletAddress={walletAddress} />} />
-                                <Route path="/minigame/shootout" element={<Shootout walletAddress={walletAddress} />} />
-                                <Route path="/minigame/car-chase" element={<CarChase walletAddress={walletAddress} />} />
-                                <Route path="/minigame/dice-game" element={<DiceGame walletAddress={walletAddress} />} />
-                                <Route path="*" element={<Navigate to="/" />} />
-                            </Routes>
-                        )}
-                    </main>
-                </div>
-
-                {showInbox && (
-                    <div className="fixed inset-0 flex justify-center items-end bg-black bg-opacity-50">
-                        <div className="bg-gray-800 p-4 rounded-t-lg shadow-lg w-full max-w-md">
-                            <button onClick={() => setShowInbox(false)} className="text-white float-right mb-2">
-                                ✖
-                            </button>
-                            <Inbox userId={currentUser._id} />
-                        </div>
-                    </div>
-                )}
-
-                {showProfileCard && walletAddress && (
-                    <div className="fixed inset-0 flex justify-center items-end bg-black bg-opacity-50">
-                        <div className="bg-gray-800 p-4 rounded-t-lg shadow-lg w-full max-w-md">
-                            <button onClick={() => setShowProfileCard(false)} className="text-white float-right mb-2">
-                                ✖
-                            </button>
-                            <ProfileCard walletAddress={walletAddress} />
-                        </div>
-                    </div>
-                )}
-            </div>
-        </Router>
-        </WalletModalProvider>
-        </SocketProvider>
-    
-);
+            </Router>
+            </WalletModalProvider>
+            </SocketProvider>
+        
+    );
 };
 
 export default App;

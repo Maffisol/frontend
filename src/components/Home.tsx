@@ -58,65 +58,70 @@ const Home: React.FC<{ walletAddress: string }> = ({ walletAddress }) => {
     ];
 
     return (
-        <div className="flex flex-col items-center bg-gray-900 min-h-screen text-white mx-auto max-w-3xl">
-            {/* Image Slider */}
-            <div className="w-full mx-auto">
-                <ImageSlider />
-            </div>
+<div className="flex flex-col items-center bg-gray-900 min-h-screen text-white mx-auto sm:px-6 md:px-8">
+{/* Image Slider */}
+<div className="w-full mx-auto">
+    <ImageSlider />
+</div>
 
-            {/* Toggle View Button */}
-            <div className="flex justify-end w-full px-4">
-                <button
-                    onClick={() => setIsGridView(!isGridView)}
-                    className="bg-gray-700 text-white p-2 rounded hover:bg-gray-600 transition mb-4 flex items-center justify-center"
-                >
-                    <FontAwesomeIcon
-                        icon={isGridView ? faArrowsAltH : faTh}
-                        className="text-xl"
-                        title={isGridView ? 'Switch to Scroll View' : 'Switch to Grid View'}
-                    />
-                </button>
-            </div>
+{/* Toggle View Button */}
+<div className="flex justify-end w-full px-0">
+    <button
+        onClick={() => setIsGridView(!isGridView)}
+        className="bg-gray-700 text-white p-2 rounded hover:bg-gray-600 transition mb-1 flex items-center justify-center"
+    >
+        <FontAwesomeIcon
+            icon={isGridView ? faArrowsAltH : faTh}
+            className="text-xl"
+            title={isGridView ? 'Switch to Scroll View' : 'Switch to Grid View'}
+        />
+    </button>
+</div>
 
-            {/* Tiles Section with Grid or Scrollable View */}
-            <section
-                ref={sliderRef}
-                className={`w-full px-4 pb-2 ${isGridView ? 'grid grid-cols-3 sm:grid-cols-5 gap-4' : 'flex overflow-hidden space-x-4'}`}
-                onMouseDown={handleMouseDown}
-                onMouseLeave={handleMouseLeave}
-                onMouseUp={handleMouseUp}
-                onMouseMove={handleMouseMove}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
+{/* Tiles Section with Grid or Scrollable View */}
+<section
+    ref={sliderRef}
+    className={`w-full px-0 pb-2 ${isGridView ? 'grid grid-cols-3 sm:grid-cols-5 gap-4' : 'flex overflow-hidden space-x-4'}`}
+    onMouseDown={handleMouseDown}
+    onMouseLeave={handleMouseLeave}
+    onMouseUp={handleMouseUp}
+    onMouseMove={handleMouseMove}
+    onTouchStart={handleTouchStart}
+    onTouchMove={handleTouchMove}
             >
                 {[
                     { path: '/business', label: 'Business', iconPath: '/assets/business-icon.png' },
-                    { path: '/minigame', label: 'Mini Game', iconPath: '/assets/minigame-icon.png' },
-                    { path: '/shop', label: 'Shop', iconPath: '/assets/shop-icon.png' },
-                    { path: '/families', label: 'Families', iconPath: '/assets/families-icon.png' },
-                    { path: '/FamilyDashboard', label: 'Family Dashboard', iconPath: '/assets/dashboard-icon.png' },
-                    { path: '/smuggling', label: 'Smuggling', iconPath: '/assets/smuggling-icon.png' },
                     { path: '/steal-car', label: 'Steal a Car', iconPath: '/assets/steal-car-icon.png' },
                     { path: '/crimes', label: 'Crimes', iconPath: '/assets/crimes-icon.png' },
-                    { path: '/jail', label: 'Jail', iconPath: '/assets/jail-icon.png' },
                     { path: '/kill', label: 'Kill', iconPath: '/assets/kill-icon.png' },
+                    { path: '/smuggling', label: 'Smuggling', iconPath: '/assets/smuggling-icon.png' },
+                    { path: '/jail', label: 'Jail', iconPath: '/assets/jail-icon.png' },
+                    { path: '/minigame', label: 'Mini Game', iconPath: '/assets/minigame-icon.png' },
+                    { path: '/families', label: 'Families', iconPath: '/assets/families-icon.png' },
+                    { path: '/FamilyDashboard', label: 'Family Dashboard', iconPath: '/assets/dashboard-icon.png' },
+                    { path: '/shop', label: 'Shop', iconPath: '/assets/shop-icon.png' },               
+                    
+                    
                 ].map((tile, index) => (
                     <Link
-                        key={index}
-                        to={tile.path}
-                        className={`${colors[index % colors.length]} hover:brightness-110 flex flex-col items-center justify-center text-white rounded-lg shadow-lg transition-transform transform hover:scale-105 ${isGridView ? 'w-full h-32' : 'w-32 h-32 flex-shrink-0'}`}
+                    key={index}
+                    to={tile.path}
+                    className={`${colors[index % colors.length]} hover:brightness-110 flex flex-col items-center justify-center text-white rounded-lg shadow-lg transition-transform transform hover:scale-105 ${isGridView ? 'w-full h-32' : 'w-32 h-32 flex-shrink-0'}`}
                     >
-                        <img src={tile.iconPath} alt={tile.label} className="w-10 h-10 mb-1" />
-                        <span className="mt-1 text-sm font-semibold">{tile.label}</span>
-                    </Link>
-                ))}
-            </section>
+                    <img src={tile.iconPath} alt={tile.label} className="w-10 h-10 mb-1" />
+                    <span className="mt-1 text-sm font-semibold">{tile.label}</span>
+                </Link>
+            ))}
+        </section>
+        
 
-            {/* Leaderboard Section */}
-            <div className="flex justify-center w-full px-4">
-                <div className="bg-gray-800 rounded-lg shadow-lg p-4 w-full max-w-3xl">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg font-bold text-yellow-400">
+{/* Leaderboard Section */}
+<div className="flex justify-center w-full px-0">
+    <div className="bg-gray-800 rounded-lg shadow-lg p-4 w-full">
+<div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold text-yellow-400">
+
+
                             {activeLeaderboard === 'players' ? 'Player Leaderboard' : 'Family Leaderboard'}
                         </h2>
                         <div className="flex space-x-2">
