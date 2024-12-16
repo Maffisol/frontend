@@ -156,7 +156,7 @@ const PLAYER_API_URL = import.meta.env.VITE_PLAYER_API_URL;
                 <Router>
                 <div className="flex items-start justify-center min-h-screen bg-gray-900 text-white w-full">
                 <div className="w-full sm:px-0 md:px-8 max-w-full sm:max-w-full md:max-w-3xl mx-auto">
-                <header className="w-full sm:px-0 md:px-8 px-0 mx-auto"> {/* Verwijder padding op mobiel */}
+                <header className="w-full sm:px-0 md:px-16 px-0 mx-auto"> {/* Verwijder padding op mobiel */}
                 <div className="flex justify-between items-center w-full">
         {/* Logo */}
         <Link to="/" className="flex-shrink-0">

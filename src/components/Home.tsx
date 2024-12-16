@@ -65,23 +65,27 @@ const Home: React.FC<{ walletAddress: string }> = ({ walletAddress }) => {
 </div>
 
 {/* Toggle View Button */}
-<div className="flex justify-end w-full px-0">
-    <button
-        onClick={() => setIsGridView(!isGridView)}
-        className="bg-gray-700 text-white p-2 rounded hover:bg-gray-600 transition mb-1 flex items-center justify-center"
-    >
-        <FontAwesomeIcon
-            icon={isGridView ? faArrowsAltH : faTh}
-            className="text-xl"
-            title={isGridView ? 'Switch to Scroll View' : 'Switch to Grid View'}
-        />
-    </button>
+<div className="flex justify-between items-center w-full px-0 py-2">
+  {/* Explore Text */}
+  <span className="text-white text-lg font-medium">Explore</span>
+
+  {/* Toggle Button */}
+  <button
+    onClick={() => setIsGridView(!isGridView)}
+    className="bg-gray-700 text-white p-2 rounded hover:bg-gray-600 transition flex items-center justify-center"
+  >
+    <FontAwesomeIcon
+      icon={isGridView ? faArrowsAltH : faTh}
+      className="text-xl"
+      title={isGridView ? 'Switch to Scroll View' : 'Switch to Grid View'}
+    />
+  </button>
 </div>
 
 {/* Tiles Section with Grid or Scrollable View */}
 <section
     ref={sliderRef}
-    className={`w-full px-0 pb-2 ${isGridView ? 'grid grid-cols-3 sm:grid-cols-5 gap-4' : 'flex overflow-hidden space-x-4'}`}
+    className={`w-full px-0 pb-2 ${isGridView ? 'grid grid-cols-3 sm:grid-cols-5 gap-2' : 'flex overflow-hidden space-x-2'} mb-4`}
     onMouseDown={handleMouseDown}
     onMouseLeave={handleMouseLeave}
     onMouseUp={handleMouseUp}
@@ -108,17 +112,17 @@ const Home: React.FC<{ walletAddress: string }> = ({ walletAddress }) => {
                     to={tile.path}
                     className={`${colors[index % colors.length]} hover:brightness-110 flex flex-col items-center justify-center text-white rounded-lg shadow-lg transition-transform transform hover:scale-105 ${isGridView ? 'w-full h-32' : 'w-32 h-32 flex-shrink-0'}`}
                     >
-                    <img src={tile.iconPath} alt={tile.label} className="w-10 h-10 mb-1" />
-                    <span className="mt-1 text-sm font-semibold">{tile.label}</span>
+                    <img src={tile.iconPath} alt={tile.label} className="w-10 h-10 mb-2" />
+                    <span className="mt-2 text-sm font-semibold">{tile.label}</span>
                 </Link>
             ))}
         </section>
         
 
 {/* Leaderboard Section */}
-<div className="flex justify-center w-full px-0">
-    <div className="bg-gray-800 rounded-lg shadow-lg p-4 w-full">
-<div className="flex justify-between items-center mb-4">
+<div className="flex justify-center w-full">
+    <div className="rounded-lg shadow-lg p-0 w-full max-w-none">
+<div className="flex justify-between items-center mb-1">
             <h2 className="text-lg font-bold text-yellow-400">
 
 

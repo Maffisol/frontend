@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useSocket } from '../context/SocketContext';  // Zorg ervoor dat je het pad naar je SocketContext correct instelt
-import axios from 'axios';  // Importeer axios
+import { useSocket } from '../context/SocketContext';
+import axios from 'axios';
 
-// Gebruik de VITE_LEADERBOARD_API_URL uit je .env bestand
 const api = axios.create({
-    baseURL: import.meta.env.VITE_LEADERBOARD_API_URL,  // Haal de baseURL uit de .env
-    timeout: 10000,  // Stel een time-out in van 10 seconden
+    baseURL: import.meta.env.VITE_LEADERBOARD_API_URL,
+    timeout: 10000,
 });
-
 
 interface LeaderboardEntry {
     walletAddress: string;
@@ -22,7 +20,7 @@ interface FamilyEntry {
     familyName: string;
     memberCount: number;
     totalPoints: number;
-    dominancePoints: number; // Dominance points toegevoegd
+    dominancePoints: number;
 }
 
 interface LeaderboardProps {
@@ -34,18 +32,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
     const [families, setFamilies] = useState<FamilyEntry[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const socket = useSocket().socket;  // Haal de socket op uit de context
+    const socket = useSocket().socket;
 
     const fetchLeaderboard = async () => {
         setLoading(true);
         try {
-            // Axios haalt de data direct uit response.data
             const response = await api.get(`/${type}`);
-            if (response.status !== 200) {
-                throw new Error('Failed to fetch leaderboard data');
-            }
-            const data = response.data; // Gebruik direct de data van de response
-            console.log("Fetched leaderboard data:", data); // Log de ontvangen data
+            const data = response.data;
+            console.log('Fetched leaderboard data:', data);
             type === 'players' ? setLeaderboard(data) : setFamilies(data);
             setError(null);
         } catch (err) {
@@ -59,11 +53,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
         fetchLeaderboard();
     }, [type]);
 
-    // Listen for updates to leaderboard data
     useEffect(() => {
         if (!socket) return;
 
-        socket.on("leaderboardUpdate", (updatedData: any) => {
+        socket.on('leaderboardUpdate', (updatedData: any) => {
             if (type === 'players') {
                 setLeaderboard(updatedData);
             } else if (type === 'families') {
@@ -71,76 +64,81 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ type }) => {
             }
         });
 
-        // Clean up the socket connection when the component is unmounted
         return () => {
-            socket.off("leaderboardUpdate");
+            socket.off('leaderboardUpdate');
         };
     }, [socket, type]);
+
     return (
-        <div className="overflow-x-auto sm:overflow-x-auto md:overflow-x-hidden">
+        <div className="w-full overflow-x-auto border-none">
             {loading ? (
                 <p className="text-yellow-300 text-center">Loading...</p>
             ) : error ? (
                 <p className="text-red-500 text-center">{error}</p>
             ) : type === 'players' ? (
-                <table className="min-w-full table-fixed text-gray-300">
-                    <thead>
-                        <tr className="bg-gray-700">
-                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Username</th>
-                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Family</th>
-                            <th className="py-3 px-2 text-left w-1/5 sm:w-1/2 md:w-1/5">Rank</th>
-                            <th className="py-3 px-2 text-left w-1/5 sm:w-1/2 md:w-1/5">Points</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {leaderboard.length === 0 ? (
-                            <tr>
-                                <td colSpan={4} className="py-4 text-center">No players yet.</td>
-                            </tr>
-                        ) : (
-                            leaderboard.map(player => (
-                                <tr key={player.walletAddress} className="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                                    <td className="py-2 px-2 text-left">
-                                        {player.username}
-                                        {player.isPro && <span className="ml-2 text-yellow-500">★</span>}
-                                    </td>
-                                    <td className="py-2 px-2 text-left">{player.family}</td>
-                                    <td className="py-2 px-2 text-left">{player.rank}</td>
-                                    <td className="py-2 px-2 text-left">{player.points}</td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                <div className="w-full text-gray-300">
+                    {/* Header */}
+                    <div className="flex justify-between py-3 px-0 rounded-t-lg">
+                    <span className="w-2/6 font-bold text-left ml-2">Player</span>
+                    <span className="w-2/6 font-bold">Family</span>
+                    <span className="w-1/6 font-bold">Rank</span>
+                    <span className="w-1/6 font-bold">Points</span>
+                    </div>
+                    {/* Content */}
+                    {leaderboard.length === 0 ? (
+                        <div className="py-4 text-center">No players yet.</div>
+                    ) : (
+                        leaderboard.map((player, index) => (
+                            <div
+                                key={player.walletAddress}
+                                className={`flex justify-between items-center py-3 px-0 mb-2 rounded-lg ${
+                                    index % 2 === 0 ? 'bg-gray-700' : 'bg-gray-800'
+                                }`}
+                            >
+                                <div className="w-2/6 text-left ml-2">
+                                    {player.username}
+                                    {player.isPro && <span className="ml-2 text-yellow-500">★</span>}
+                                </div>
+                                <div className="w-2/6">{player.family}</div>
+                                <div className="w-1/6">{player.rank}</div>
+                                <div className="w-1/6">{player.points}</div>
+                            </div>
+                        ))
+                    )}
+                </div>
             ) : (
-                <table className="min-w-full table-fixed text-gray-300">
-                    <thead>
-                        <tr className="bg-gray-700">
-                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Family</th>
-                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Members</th>
-                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Total Points</th>
-                            <th className="py-3 px-2 text-left w-1/4 sm:w-1/2 md:w-1/4">Dominance Points</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {families.length === 0 ? (
-                            <tr>
-                                <td colSpan={4} className="py-4 text-center">No families yet.</td>
-                            </tr>
-                        ) : (
-                            families.map(family => (
-                                <tr key={family.familyName} className="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                                    <td className="py-2 px-2 text-left">{family.familyName}</td>
-                                    <td className="py-2 px-2 text-left">{family.memberCount}</td>
-                                    <td className="py-2 px-2 text-left">{family.totalPoints}</td>
-                                    <td className="py-2 px-2 text-left">{family.dominancePoints || 0}</td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                <div className="w-full text-gray-300">
+                    {/* Header */}
+                    <div className="flex justify-between py-3 px-0 rounded-t-lg">
+                    <span className="w-1/4 font-bold text-left ml-2">Family</span>
+                    <span className="w-1/4 font-bold">Members</span>
+                    <span className="w-1/4 font-bold">Total Points</span>
+                    <span className="w-1/4 font-bold">Dominance Points</span>
+                    </div>
+                    {/* Content */}
+                    {families.length === 0 ? (
+                        <div className="py-4 text-center">No families yet.</div>
+                    ) : (
+                        families.map((family, index) => (
+                            <div
+                                key={family.familyName}
+                                className={`flex justify-between items-center py-3 px-0 mb-2 rounded-lg ${
+                                    index % 2 === 0 ? 'bg-gray-700' : 'bg-gray-800'
+                                }`}
+                            >
+                                <div className="w-1/4 text-left ml-2">{family.familyName}</div>
+                                <div className="w-1/4">{family.memberCount}</div>
+                                <div className="w-1/4">{family.totalPoints}</div>
+                                <div className="w-1/4">{family.dominancePoints || 0}</div>
+                            </div>
+                        ))
+                    )}
+                </div>
             )}
         </div>
     );
-};    
+    
+    
+};
+
 export default Leaderboard;
