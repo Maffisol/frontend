@@ -3,6 +3,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import axios from 'axios';
 
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
+const VITE_FAMILY_INVITES_API_URL = import.meta.env.VITE_FAMILY_INVITES_API_URL;
+const VITE_FAMILY_API_URL = import.meta.env.VITE_FAMILY_API_URL;
 
 interface Family {
     _id: string;
@@ -70,7 +72,7 @@ const Families: React.FC = () => {
 
     const fetchFamilies = async () => {
         try {
-            const response = await axios.get(`${BASE_API_URL}/family`);
+              const response = await axios.get(`${VITE_FAMILY_API_URL}`);
             setFamilies(response.data || []);
         } catch (error) {
             console.error('Error fetching families:', error);
@@ -87,7 +89,7 @@ const Families: React.FC = () => {
 
     const fetchPendingInvites = async (familyId: string) => {
         try {
-            const response = await axios.get(`${BASE_API_URL}/family-invites/${familyId}/pending-invites`);
+            const response = await axios.get(`${VITE_FAMILY_INVITES_API_URL}/${familyId}/pending-invites`);
             console.log("Pending invites received in frontend:", response.data); // Log data received from backend
             setPendingInvites(response.data);
         } catch (error) {
@@ -103,7 +105,7 @@ const Families: React.FC = () => {
 
         setCreating(true);
         try {
-            await axios.post(`${BASE_API_URL}/family`, {
+            await axios.post(`${VITE_FAMILY_API_URL}`, {
                 name: familyName,
                 ownerUsername: username,
                 members: [username],
@@ -128,7 +130,7 @@ const Families: React.FC = () => {
         setAddingMember(true);
         try {
             const inviterWalletAddress = userId;
-            await axios.post(`${BASE_API_URL}/family-invites/invite-member`, {
+            await axios.post(`${VITE_FAMILY_INVITES_API_URL}/invite-member`, {
                 inviterWalletAddress,
                 inviteeUsername: newMemberUsername,
                 familyId: selectedFamily._id,
@@ -150,7 +152,7 @@ const Families: React.FC = () => {
         if (!selectedFamily?._id) return;
 
         try {
-            const response = await axios.post(`${BASE_API_URL}/family/remove-member`, {
+            const response = await axios.post(`${VITE_FAMILY_API_URL}/remove-member`, {
                 familyId: selectedFamily._id,
                 username: memberUsername,
             });
@@ -176,7 +178,7 @@ const Families: React.FC = () => {
         if (!confirmed) return;
 
         try {
-            await axios.delete(`${BASE_API_URL}/family/${selectedFamily._id}`, {
+            await axios.delete(`${VITE_FAMILY_API_URL}/${selectedFamily._id}`, {
                 headers: { ownerUsername: username },
             });
             await fetchFamilies();

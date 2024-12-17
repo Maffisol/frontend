@@ -29,19 +29,31 @@ interface Notification {
     chatId: string; // Zorg ervoor dat 'chatId' aanwezig is in het bericht voor vergelijking
   }
   
+  interface FamilyInvite {
+    _id: string;
+    inviterId: {
+      username: string;
+    };
+    familyId: {
+      name: string;
+    };
+    inviteeId: string;
+    status: string;
+  }
   
   
   interface Chat {
     _id: string;
-    inviterUsername: string;
+    inviterId: {
+      username: string;
+    }; // inviterId is een object met een 'username' property
     status: string;
     participants: Participant[];
     lastMessage: {
       senderId: string;
       content: string;
-    } | null; // Kan null zijn als er nog geen berichten zijn
-    familyName?: string;  // Optional familyName property
-
+    } | null;
+    familyName?: string;
   }
 
 const Inbox: React.FC<InboxProps> = ({ userId }) => {
@@ -58,7 +70,7 @@ const Inbox: React.FC<InboxProps> = ({ userId }) => {
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false); // Track emoji picker visibility
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [showInviteInput, setShowInviteInput] = useState(false);
-    const [invites, setInvites] = useState<{ chat: Chat[]; family: Chat[] }>({
+    const [invites, setInvites] = useState<{ chat: Chat[]; family: FamilyInvite[] }>({
         chat: [],
         family: [],
       });
@@ -370,7 +382,13 @@ const acceptInvite = async (inviteId: string, type: 'chat' | 'family') => {
                 key={invite._id}
                 className="bg-gray-700 p-4 rounded-lg shadow-md text-white flex justify-between items-center"
               >
-                <span>{invite.inviterUsername || 'Unknown User'} has invited you to a private chat.</span>  {/* Chat-specific message */}
+          <span>
+            {invite.inviterId?.username 
+              ? `${invite.inviterId.username} has invited you to a private chat.` 
+              : 'Unknown User has invited you to a private chat.'}
+          </span>
+
+
                 <div>
                   <button
                     onClick={() => acceptInvite(invite._id, 'chat')}
@@ -399,13 +417,18 @@ const acceptInvite = async (inviteId: string, type: 'chat' | 'family') => {
           invites.family
             .filter((invite) => invite.status === 'pending') // Alleen de pending uitnodigingen
             .map((invite) => (
+                
               <li
                 key={invite._id}
                 className="bg-gray-700 p-4 rounded-lg shadow-md text-white flex justify-between items-center"
               >
                 <span>
-                  {invite.inviterUsername || 'Unknown User'} has sent you an invitation to join {invite.familyName || 'a family'}
-                </span>  {/* Family-specific message */}
+                {invite.inviterId?.username 
+                ? `${invite.inviterId.username} has sent you an invitation to join ${invite.familyId?.name || 'a family'}` 
+                : `Unknown User has sent you an invitation to join ${invite.familyId?.name || 'a family'}`}
+                </span>
+
+
                 <div>
                   <button
                     onClick={() => acceptInvite(invite._id, 'family')}
