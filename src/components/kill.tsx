@@ -9,7 +9,7 @@ interface KillProps {
   }
 
   interface Family {
-    name: string;
+    name: string,
     // Voeg andere velden toe als nodig
   }
 
@@ -18,7 +18,7 @@ interface KillProps {
     username: string;
     name: string;
     rank: string;
-    family?: Family;
+    family?: Family,  // Maak het explicieter dat family null kan zijn
     jail?: Jail;
     points: string; 
   }
@@ -67,37 +67,93 @@ const Kill: React.FC<KillProps> = ({ currentUserId, currentUserRank, currentUser
                 console.error('Current user ID or wallet address is missing');
                 return;
             }
-
+    
             try {
                 // Fetch all players
                 const playerResponse = await fetch(`${PLAYER_API_URL}/players`);
                 if (!playerResponse.ok) throw new Error('Failed to fetch players');
                 const playerData = await playerResponse.json();
-
-                // Filter out "Rookie" players and players in jail
+    
+                // Log the fetched player data to see what you're getting
+                console.log("Fetched Player Data:", playerData);
+    
+                // Filter players based on rank and family
                 const eligiblePlayers = playerData.filter((player: Player) => {
                     const isCurrentUser = String(player._id) === String(currentUserId);
-                    const isNotRookie = player.rank !== 'Rookie';
                     const isNotInJail = !player.jail?.isInJail;
-                    return !isCurrentUser && isNotRookie && isNotInJail;
+    
+                    // Check if the current player is in the same family
+                    let isNotInSameFamily = false;
+                    if (currentUserFamily) {
+                        if (typeof player.family === 'string') {
+                            // Player has a string as family name
+                            isNotInSameFamily = player.family !== currentUserFamily.name;
+                        } else if (player.family?.name) {
+                            // Player has an object as family
+                            isNotInSameFamily = player.family.name !== currentUserFamily.name;
+                        } else {
+                            // Player has no family
+                            isNotInSameFamily = true;
+                        }
+                    }
+    
+                    // Check rank difference to allow attack (allow Soldier and below)
+                    const rankValues: { [key: string]: number } = {
+                        'Rookie': 0,
+                        'Soldier': 1,
+                        'Capo': 2,
+                        'Underboss': 3,
+                        'Don': 4,
+                        'Godfather': 5,
+                    };
+    
+                    const currentUserRankValue = rankValues[currentUserRank] || 0;
+                    const targetRankValue = rankValues[player.rank] || 0;
+    
+                    // Log the conditions for better debugging
+                    console.log(`Comparing ranks: Current user rank = ${currentUserRank} (${currentUserRankValue}), Target rank = ${player.rank} (${targetRankValue})`);
+    
+                    // Check why the player isn't eligible
+                    if (isCurrentUser) {
+                        console.log(`Skipping current user: ${player.username}`);
+                    } else if (player.rank === 'Rookie') {
+                        console.log(`Skipping rookie: ${player.username}`);
+                    } else if (player.jail?.isInJail) {
+                        console.log(`Skipping player in jail: ${player.username}`);
+                    } else if (isNotInSameFamily) {
+                        console.log(`Skipping player in same family: ${player.username}`);
+                    } else if (targetRankValue > currentUserRankValue) {
+                        console.log(`Skipping player with higher rank: ${player.username}`);
+                    } else {
+                        console.log(`Player is eligible to attack: ${player.username}`);
+                    }
+    
+                    const canAttack = !isCurrentUser && isNotInJail && isNotInSameFamily && targetRankValue <= currentUserRankValue;
+    
+                    return canAttack;
                 });
-
+    
+                // Log the filtered players to see the result
+                console.log("Eligible Players after filtering:", eligiblePlayers);
+    
                 setPlayers(eligiblePlayers);
                 setFilteredPlayers(eligiblePlayers);
-
+    
                 // Fetch current user's jail status from Jail API
                 const jailResponse = await fetch(`${JAIL_API_URL}/jail-status/${walletAddress}`);
                 if (!jailResponse.ok) throw new Error('Failed to fetch jail status');
                 const jailData = await jailResponse.json();
-
+    
                 setIsInJail(jailData.isInJail);
             } catch (error) {
                 console.error('Error fetching players or jail status:', error);
             }
         };
-
+    
         fetchPlayersAndStatus();
-    }, [currentUserId, walletAddress, currentUserFamily]);
+    }, [currentUserId, walletAddress, currentUserFamily, currentUserRank]);
+    
+    
 
     const handleSearch = () => {
         const searchResults = players.filter((player) => {
@@ -166,89 +222,83 @@ const calculateSuccessChance = (attackerRank: Rank, targetRank: Rank): number =>
 
     
 
-    return (
-        <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg max-w-xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4 text-center">Attack Rules</h2>
+return (
+    <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg max-w-xl mx-auto">
+        <h2 className="text-2xl font-bold mb-4 text-center">Attack Rules</h2>
 
-            <div className="mb-4 grid grid-cols-2 gap-8 text-sm">
-                <div>
-                    <h3 className="text-lg font-bold text-green-300">Success Rewards</h3>
-                    <ul className="list-disc list-inside">
-                        <li className="text-green-200">Steal 11% of target's money</li>
-                        <li className="text-green-200">Gain a special item</li>
-                        <li className="text-green-200">Extra XP for rank gap</li>
-                        <li className="text-green-200">1-hour cooldown</li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 className="text-lg font-bold text-red-300">Failure Risks</h3>
-                    <ul className="list-disc list-inside">
-                        <li className="text-red-200">Lose 10% of your money</li>
-                        <li className="text-red-200">Lose your highest-value item</li>
-                        <li className="text-red-200">2 hours in jail</li>
-                        <li className="text-red-200">2-hour cooldown</li>
-                    </ul>
-                </div>
-            </div>
-
-            <h2 className="text-2xl font-bold mb-4 text-center">Available Players</h2>
-
-            <div className="mb-4 flex items-center space-x-4">
-                <input
-                    type="text"
-                    placeholder="Search by username or family"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="p-2 flex-grow rounded bg-gray-800 text-white"
-                />
-                <select
-                    value={searchType}
-                    onChange={(e) => setSearchType(e.target.value)}
-                    className="p-2 rounded bg-gray-800 text-white"
-                >
-                    <option value="username">Username</option>
-                    <option value="family">Family</option>
-                </select>
-                <button
-                    onClick={handleSearch}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded font-semibold"
-                >
-                    Search
-                </button>
-            </div>
-
-            {filteredPlayers.length === 0 ? (
-                <p className="text-center text-gray-400">No players available to attack.</p>
-            ) : (
-                <ul className="space-y-3">
-{filteredPlayers.map((player: Player) => (
-    <li
-        key={player._id}
-        className="flex items-center justify-between bg-gray-800 p-3 rounded-lg shadow"
-    >
-        <div>
-            <p className="font-semibold">{player.username}</p>
-            <p className="text-sm text-gray-400">
-            Points: {player.points} | Rank: {player.rank} | Family: {player.family ? player.family.name : 'No Family'}
-            </p>
-        </div>
-        <button
-            onClick={() => handleAttack(player._id, player.rank)}
-            className={`ml-4 px-3 py-1 rounded ${
-                isInJail ? 'bg-gray-500 cursor-not-allowed' : 'bg-red-500 hover:bg-red-700'
-            } text-white`}
-            disabled={isInJail}
-        >
-            {isInJail ? 'In Jail' : 'Attack'}
-        </button>
-    </li>
-))}
-
+        <div className="mb-4 grid grid-cols-2 gap-8 text-sm">
+            <div>
+                <h3 className="text-lg font-bold text-green-300">Success Rewards</h3>
+                <ul className="list-disc list-inside">
+                    <li className="text-green-200">Steal 11% of target's money</li>
+                    <li className="text-green-200">Gain a special item</li>
+                    <li className="text-green-200">Extra XP for rank gap</li>
+                    <li className="text-green-200">1-hour cooldown</li>
                 </ul>
-            )}
+            </div>
+
+            <div>
+                <h3 className="text-lg font-bold text-red-300">Failure Risks</h3>
+                <ul className="list-disc list-inside">
+                    <li className="text-red-200">Lose 10% of your money</li>
+                    <li className="text-red-200">Lose your highest-value item</li>
+                    <li className="text-red-200">2 hours in jail</li>
+                    <li className="text-red-200">2-hour cooldown</li>
+                </ul>
+            </div>
         </div>
-    );
+
+        <h2 className="text-2xl font-bold mb-4 text-center">Available Players</h2>
+
+        <div className="mb-4 flex items-center space-x-4">
+            <input
+                type="text"
+                placeholder="Search by username or family"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="p-2 flex-grow rounded bg-gray-800 text-white"
+            />
+            <select
+                value={searchType}
+                onChange={(e) => setSearchType(e.target.value)}
+                className="p-2 rounded bg-gray-800 text-white"
+            >
+                <option value="username">Username</option>
+                <option value="family">Family</option>
+            </select>
+            <button
+                onClick={handleSearch}
+                className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded font-semibold"
+            >
+                Search
+            </button>
+        </div>
+
+        {filteredPlayers.length === 0 ? (
+            <p className="text-center text-gray-400">No players available to attack.</p>
+        ) : (
+            <ul className="space-y-3">
+                {filteredPlayers.map((player) => (
+                    <li key={player._id} className="flex items-center justify-between bg-gray-800 p-3 rounded-lg shadow">
+                        <div>
+                            <p className="font-semibold">{player.username}</p>
+                            <p className="text-sm text-gray-400">
+                                Points: {player?.points} | Rank: {player?.rank} | Family: {player?.family ? (typeof player.family === 'string' ? player.family : player.family.name) : 'No Family'}
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => handleAttack(player._id, player.rank)}
+                            className={`ml-4 px-3 py-1 rounded ${isInJail ? 'bg-gray-500 cursor-not-allowed' : 'bg-red-500 hover:bg-red-700'} text-white`}
+                            disabled={isInJail}
+                        >
+                            {isInJail ? 'In Jail' : 'Attack'}
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        )}
+    </div>
+);
 };
 
 export default Kill;
